@@ -1,0 +1,209 @@
+<!Doctype html> 
+<link rel="stylesheet" type="text/css" href="static/style/menu.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<header class="header">
+		<div class="logo">
+			<a href="/profile"><img src="static/img/logo.png"></a>
+			<span class="smart_title"><a href="/profile">Smart</a><a href="/profile" style="color: #0088b8;">Chat</a></span>
+		</div>
+		<div class="hamburger"><a href="#">&#9776;</a></div>
+		<div class="alert">
+			<div class="alert_head"></div>
+			<h1>Уведомления</h1>
+			<div class = 'notifier_block'>
+				<ul id = 'notifier' class="notifier"></ul>
+			</div>
+		</div>
+</header>
+
+<script type="text/javascript">
+
+	let handeled = false;
+// Удержание уведомлений
+	document.querySelector('.alert').addEventListener('mouseover', function (e) 
+	{
+		if(!e.target.classList.contains('alert_head')) handeled = true;
+		else handeled = false;
+	});
+	document.querySelector('.alert').addEventListener('mouseout', function () 
+	{
+		handeled = false;
+	});
+
+//Сокеты
+	let ws = new WebSocket('ws://aida.market:5155/');
+
+	ws.onmessage = function(event) 
+	{
+		let data = JSON.parse(event.data); 
+		console.log(data)
+
+		switch(data.notice)
+		{
+			case 1:
+			if(window.location.pathname == '/chat')
+			{
+				console.log(current_group);
+				
+				if(current_group == data._group) 
+				{
+					appendMsg(data, msgs);
+					ws.send(JSON.stringify({
+						notice: 8,
+						_group: data._group
+					}))
+				}
+				else 
+					if(!data.isteacher)
+						setMiss(data._group, 1); 
+				
+			}
+			else 
+				if(!data.isteacher) 
+					notifier(`Новое сообщение от студента <a href = '/student?id=${data.sender}'>${data.sender_name}!</a>`, 'green');  
+			break;
+			case 2:
+				notifier(data.msg,'green');
+			break;
+			case 3:
+				notifier(data.msg,'red');
+			break;
+			case 4:
+				notifier(data.msg,'red');
+			break;
+			default: console.log('Invalid notice'); break;
+		}
+	};
+
+//Выводим уведомления
+	function getNotice(req)
+	{
+		let res = JSON.parse(req.response);
+		if(req.status == 200)
+		{
+			let body = res.notice;
+			console.log(res)
+			for(let i = 0; i<body.length; i++)
+			{
+				notifier(body[i].content, 'green');
+			}
+			if(res.req_count != 0 && !document.getElementById('reqs'))
+			notifier('У вас новых заявок: ' + res.req_count, 'blue');
+
+			if(res.sms_count > 0 && !document.getElementById('contacts'))
+			notifier('У вас новых сообщений: ' + res.sms_count, 'blue');
+
+			if(res.tests != 0 && !document.getElementById('result-list'))
+			notifier('У вас непроверенных тестов: ' + res.tests, 'blue');
+
+			if(res.graph == 0 && !document.querySelector('.gr_container'))
+			notifier('Для работы с системой вам нужно <a href="/graph"> составить график </a>!', 'red');
+		}
+		else
+		{
+			console.log(res);
+		}
+	}
+//СКРИПТ
+	POST('/notice','method=GET', getNotice);
+//Для уведомляера
+		$('.hamburger').click(()=>{  
+			$(".alert").css("transition",".5s");
+			$(".alert").css("right","0");
+		});
+
+		$('.alert_head').click(()=>{
+
+			if(!handeled)
+			{
+				$(".alert").css("transition",".8s");
+				$(".alert").css("right","-30vw");
+
+				let notifier = document.getElementById('notifier');
+				notifier.innerHTML = '';
+			}
+			else
+			{
+				setTimeout(()=>
+				{
+					document.querySelector('.alert_head').click();
+				}, 2000);
+			}
+		});
+
+//Уводомляер
+	function notifier(mail, color)
+	{
+		let li = document.createElement('li');
+		li.innerHTML = mail;
+		li.type = 'notifier';
+		li.style.color = color;
+		document.getElementById('notifier').appendChild(li);
+		document.querySelector('.hamburger').click();
+
+		if(color == 'blue')
+		{
+			setTimeout(()=>
+			{
+				document.querySelector('.alert_head').click();
+			}, 2000);
+		}
+
+		// if(color == 'green') sound(2);
+		else if(color == 'blue') sound(1);
+		// setTimeout(()=>
+		// 	{
+		// 		document.querySelector('.alert_head').click();
+		// 	}, 8000);
+	}
+
+//POST запрос
+	function POST(route, params, funct)
+	{
+		let req = new XMLHttpRequest();
+		req.onreadystatechange = function()
+		{
+			if(req.readyState == 4) funct(req);
+		}
+		req.open('POST',route);
+		req.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+		req.send(params);
+	}
+
+//Загрузка файла
+	function sendFile(route ,file, funct, name)
+	{
+		//Создаем объек FormData
+        var data = new FormData();
+        //Добавлем туда файл
+        data.append('uploadFile', file);
+        if(name) data.append('name', name);
+        $.ajax({
+            url: route,
+            data: data,
+            cache: false,
+            contentType: false,
+            processData: false,
+            type: 'POST',
+            success: function(response) {
+            	funct(response);
+            }
+        });
+	}
+
+//Звуковой генератор
+	function sound(i)
+	{
+		let audio = new Audio();
+		switch(i)
+		{
+			case 1: 
+			audio.src = 'static/aud/pop.mp3';
+			break;
+			case 2:
+			audio.src = 'static/aud/notif.wav';
+			break;
+		}
+		audio.play();
+	}
+</script>

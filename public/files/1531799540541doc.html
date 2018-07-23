@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>asjdf</title>
+</head>
+<body>
+
+
+</body>
+<script type="text/javascript">
+	let ws = new WebSocket('ws://aida.market:5155/');;	
+	console.log(ws);
+
+	setTimeout(()=>
+		{
+			let data = {
+			anvar: 'sdaf',
+			notice: 1
+			};
+			ws.send(JSON.stringify(data));
+		}, 1000)
+</script>
+</html>

@@ -1,0 +1,324 @@
+/*-------------------------------------------------------------*/
+.container
+{
+    background: #fff;
+    border-radius: 0.5vh;
+    border: .1vh solid #E0FFFF;
+    text-align: center;
+    position: absolute;
+    display: inline-block;
+    top: 0;
+    bottom: 0;
+    margin: 12vh 0 0 10vh;
+	width: 100vh;
+	height: 82vh; 
+	font-size: 3vh;
+    overflow-y: auto;
+}
+
+.edit_btn{
+    border: none;
+    background: #0088b8;
+    padding: 1.7vh 7vh;
+    margin: 2vh auto 0;
+    display: block;
+    color: #fff;
+    font-size: 2vh;
+    border-radius: 5vh;
+}
+
+/*---------------------------------------------REQUESTS----------------------------------------*/
+.requests
+{
+    width: 75vh;
+}
+
+.student_graph
+{
+    width: 60vh;
+    height: 60vh;
+    margin-left: 88vh;
+    overflow-x: hidden;
+}
+
+.new_group_cont
+{
+    display: none;
+    z-index: 2;
+    width: 70vh;
+    height: 70vh;
+    margin-left: 40vh;
+    top: -8vh;
+    overflow-y: hidden;
+}
+
+.back
+{
+    margin-left: 40vh;
+    position: fixed;
+    background: rgba(0,0,0,0.7);
+    width: 83%;
+    height: 100%;
+}
+.acception
+{
+    width: 70vh;
+    height: 70vh;
+    margin-left: 40vh;
+    top: -8vh;
+}
+.student_graph table
+{
+    margin: auto;
+}
+
+.button
+{
+    border: none;
+    background: #0088b8;
+    padding: 0.4vh 2vh;
+    margin: 2vh;
+    margin-left: 4vh;
+    color: #fff;
+    font-size: 2.5vh;
+    border-radius: 5vh;
+    width: 17vh;
+}
+
+.accept
+{
+    bottom: 0;
+    right: 1vh;
+    position: absolute;
+}
+
+.ignore
+{
+    bottom: 0;
+    right: 18.5vh;
+    position: absolute;
+}
+
+.cancel
+{
+    bottom: 0;
+    right: 20vh;
+    position: absolute;
+}
+
+.new_group
+{
+    bottom: 0;
+    right: 37.5vh;
+    position: absolute;
+}
+
+.new_group_name
+{
+    background: none;
+    border: none;
+    border-bottom: 1px solid #000;
+    padding: 1vh;
+    width: 60%;
+    margin: auto;
+    display: block;
+    font-size: 3vh;
+    text-align: center;
+}
+.ulreqs
+{
+    margin-left: 5vh;
+    text-align: left;
+    margin-top: 1vh;
+}
+.ulreqs li
+{
+    margin-bottom: 1.5vh;
+    width: 50vh;
+}
+.td1
+{
+    text-align: right;
+}
+
+.student_name
+{
+    cursor: pointer;
+    width: inherit;
+    position: relative;
+}
+
+/*имя фамилия*/
+.student_name p 
+{
+    display: inline;
+    font-weight: bold;
+    font-size: 2.5vh
+}
+
+/*Уровень*/
+.student_name a
+{
+    display: inline;
+    font-size: 2.2vh;
+    margin-left: 1vh;
+}
+
+.ones_title
+{
+    font-size: 3vh;
+    display: none;
+    margin: 0;
+}
+
+.student_name label
+{
+    cursor: pointer;
+}
+
+.a_date
+{
+    color: gray;
+    position: absolute;
+    margin-top: 1vh;
+    right: 3vh;
+    display: inline;
+    font-size: 2.2vh; 
+}
+
+.chb:checked + label{
+    padding: 1vh;
+    background-color: #97b2ca;
+    border-radius: 0.5em;
+    transition: all 0.3s ease;
+}
+
+.cont label
+{
+    cursor: pointer;
+    margin: 1vh;
+}
+
+.graph_type
+{
+    font-size: 2.5vh;
+    display: block;
+    color: blue;
+    position: absolute;
+    margin-left: 16vh;
+    top: 11vh;
+}
+
+.graph_block
+{
+    overflow-y: auto;
+    width: 100%;
+    height: 35vh;
+}
+
+.rate_name
+{
+    margin-bottom: 1vh;
+}
+
+.firstday
+{
+    width: 30vh;
+    height: 4vh;
+    position: absolute;
+    bottom: 7vh;
+    left: 20vh;
+    border: 1px solid #0088b8;
+    text-align: center;
+    outline: none;
+}
+
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  display: none;
+}
+
+.validator
+{
+    padding: 2vh;
+    width: 50vh;
+    height: 35vh;
+    z-index: 20;
+    margin: 20vh 0 0 90vh;
+    background: #fff;
+    border-radius: 0.5vh;
+    border: .1vh solid #E0FFFF;
+    text-align: center;
+    position: absolute;
+}
+
+.background
+{
+    display: none;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.3);
+    position: fixed;
+}
+
+/*---------------------------------------------Grafik -----------------------------------------*/
+.day_in_line{
+    color: #91a7cf;
+}
+.table_grafik{
+    border-spacing: 0;
+    width: 100%;
+    font-size: 2.1vh;
+    text-align: left;
+    margin-bottom: 3vh;
+}
+.table_grafik td{
+    padding: 1vh 4vh;
+    width: 33.33%;
+    border-bottom: 1px solid rgba(173,175,178,0.3);
+}
+.table_grafik tr{
+    height: 8vh;
+    border-bottom: 1px solid rgba(173,175,178,0.3);
+}
+.jm_select {
+    cursor: pointer;
+    color: #2f3a4d;
+    font-size: 2.3vh;
+    width: 50%;
+    min-width: 82px;
+    height: 5vh;
+    -webkit-appearance: none;
+    line-height: 1em;
+    -moz-appearance: none;
+    text-indent: 0.01px;
+    text-overflow: '';
+    -ms-appearance: none;
+    appearance: none !important;
+    border: none;
+    background: none;
+    font-family: 'SFUIDisplay-Regular';
+
+    background-image: url(../img/select_grey.svg);
+    background-position: right center;
+    background-repeat: no-repeat;
+    background-size: 1.5vh;
+    min-height: 23px;
+}
+.jm_select option
+{
+	cursor: pointer;
+}
+.button_tool{
+    font-size: 2.1vh;
+    color: #fff;
+    padding: 1.25vh 7%;
+    display: block;
+    border-radius: 3vh;
+    margin: auto;
+    border: none;
+    background: #0177bd;
+}
+/*---------------------------------------------Grafik END-----------------------------------------*/

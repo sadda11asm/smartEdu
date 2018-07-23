@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru" >
+<head>
+  <meta charset="UTF-8">
+  <title>Активируйте ваш аккаунт</title>
+    <link rel="stylesheet" href="css/vendor/reset.min.css">
+    <link rel='stylesheet' href="css/vendor/font-awesome.min.css">
+    <link rel="stylesheet" href="css/authorization.css">
+</head>
+<body>
+  <div class="backdrop">
+    <div class="module form-module">
+      <div class="form show-form" id="restoring">
+        <h2>Активируйте ваш аккаунт</h2>
+        <form>
+          <label class="alert" id = 'activate-err' style="display: none;"></label>
+          <div class='tel'>
+            <label class="tel__label">+7</label>
+            <input class="tel__input" type="number" placeholder="Телефон" onkeydown ="keyUpTel(event)" id ='tel'/>
+          </div>
+          <input type="text" placeholder="Введите код активаций" id = 'code' style='display: none'/>
+          <button onclick="activate(event)">Отправить</button>
+        </form>
+      </div>
+      <div class="cta" id="cta"></div>
+    </div>
+  </div>
+</body>
+  <script src="js/common.js"></script>
+  <script type="text/javascript" src="js/pages/account/activate.js"></script>
+</html>

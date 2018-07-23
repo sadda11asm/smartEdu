@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SmartEDU</title>
+	<link rel="stylesheet" type="text/css" href="/css/nav.css">
+	<link rel="stylesheet" type="text/css" href="/css/profile.css">
+	<link rel="stylesheet" type="text/css" href="/css/schedule.css">
+	<link rel="stylesheet" type="text/css" href="/css/groups.css">
+	<link rel="stylesheet" type="text/css" href="/css/chat.css">
+	<link rel="stylesheet" type="text/css" href="/css/courses.css">
+	<link rel="stylesheet" type="text/css" href="/css/test.css">
+	<link rel="stylesheet" type="text/css" href="/css/tests.css">
+	<link rel="stylesheet" type="text/css" href="/css/request.css">
+	<link rel="stylesheet" type="text/css" href="/css/homework.css">
+</head>
+<body>
+	<% include ./part/popup  %>
+	<% include ./part/top  %>
+	<div class="wrapper">
+		<% include ./part/nav  %>
+		<% include ./part/content %>
+	</div>
+	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script type="text/javascript" src="/js/common.js"></script>
+	<script type="text/javascript" src="/js/functions.js"></script>
+
+	<!-- pages -->
+	<script type="text/javascript" src="/js/pages/chat.js"></script>
+	<script type="text/javascript" src="/js/pages/courses.js"></script>
+	<script type="text/javascript" src="/js/pages/homework.js"></script>
+	<script type="text/javascript" src="/js/pages/groups.js"></script>
+	<script type="text/javascript" src="/js/pages/profile.js"></script>
+	<script type="text/javascript" src="/js/pages/schedule.js"></script>
+	<script type="text/javascript" src="/js/pages/tests.js"></script>
+	<script type="text/javascript" src="/js/pages/test.js"></script>
+	<script type="text/javascript" src="/js/pages/request.js"></script>
+
+	<!-- pages end -->
+
+	<script type="text/javascript" src="/js/router.js"></script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+.container
+{
+    background: #fff;
+    border-radius: 0.5vh;
+    border: .1vh solid #E0FFFF;
+    text-align: center;
+    position: absolute;
+    display: inline-block;
+    top: 0;
+    bottom: 0;
+    margin: 12vh 0 0 10vh;
+	width: 125vh;
+	height: 82vh; 
+	font-size: 3vh;
+}
+/*-----------tests table--------*/
+.tests
+{
+	width: 100%;
+	height: 73.5vh;
+	overflow-y: auto;
+}
+
+.test
+{
+	width: 100%;
+	height: 8vh;
+	border-bottom: .3vh solid #dadada;
+}
+
+.line
+{
+	height: 100%;
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+	text-align: left;
+	position: relative;
+}
+
+.test h4
+{
+	margin: 0;
+	position: absolute;
+	left: 2vh;
+	bottom: 2vh;
+	font-size: 3vh;
+	font-weight: normal;
+}
+
+.points
+{
+	position: absolute;
+	left: 4vh;
+	bottom: 2vh;
+	height: 3.5vh;
+	cursor: pointer;
+}
+
+.test_menu
+{
+	display: none;
+	z-index: 1;
+	position: absolute !important;
+	width: 22vh;
+	left: 5.5vh;
+	top: 4vh;
+	background: white;
+	border-radius: .5vh;
+	box-shadow: 0 0 10px rgba(0,0,0,0.5);
+	padding: 0 1.5vh 1.5vh;
+}
+
+.but
+{
+	cursor: pointer;
+	width: 100%;
+	height: 4vh;
+	font-size: 2vh;
+	border-radius: .3vh;
+	text-align: left;
+	padding: .5vh;
+	margin-top: 1.5vh;
+	position: relative;
+}
+
+.but:hover
+{
+	background: #e6edf4;
+}
+
+.menu_img
+{
+	height: 2.5vh;
+}
+
+.menu_title
+{
+	position: absolute;
+	left: 4.5vh;
+	top: 1vh;
+}
+
+.testName
+{
+	width: 59.1%;
+}
+
+.testName h4
+{
+	left: 12vh;
+}
+
+.testLvl
+{
+	width: 25%;
+	border-left: .3vh solid #dadada;
+}
+
+.testDate
+{
+	width: 14%;
+	border-left: .3vh solid #dadada;
+}
+
+.testDate h4
+{
+	font-size: 2.4vh;
+}
+
+/*-----------top----------------*/
+.top
+{
+	height: 8vh;
+	width: 100%;
+	background: #e6edf4;
+	border-bottom: .3vh solid #dadada;
+}
+
+.top div
+{
+	height: 100%;
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+	text-align: left;
+	position: relative;
+}
+
+.top h4
+{
+	margin: 0;
+	position: absolute;
+	left: 2vh;
+	bottom: 2vh;
+	font-size: 3vh;
+	font-weight: normal;
+}
+
+.topName
+{
+	width: 59%;
+}
+
+.topName h4
+{
+	left: 12vh;
+}
+
+.topLvl
+{
+	width: 25%;
+	border-left: .3vh solid #dadada;
+}
+
+.topDate
+{
+	width: 14%;
+	border-left: .3vh solid #dadada;
+}
+
+.blue_plus
+{
+	position: absolute;
+    width: 7vh;
+    right: -3vh;
+    top: -3vh;
+    cursor: pointer;
+    z-index: 2;
+}

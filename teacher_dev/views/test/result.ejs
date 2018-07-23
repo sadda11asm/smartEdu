@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>SmartChat</title> 
+	<meta charset="utf-8">
+	<link rel="icon" type="img/png" href="static/img/logo.png">
+	<link rel="stylesheet" type="text/css" href="static/style/result.css">
+	<link rel="stylesheet" type="text/css" href="static/style/profile.css">
+</head>
+<body>
+	<% include ../partial/header %>
+	<div class="wrapper">
+		<% include ../partial/menu %>
+
+		<div class="result-list container">
+			<div class="result-list__header" style="">
+				<div class="table-row">
+					<div class="table-cell table-cell_width25">Имя студента</div>
+					<div class="table-cell table-cell_width25">Название теста</div>
+					<div class="table-cell">Уровень теста</div>
+					<div class="table-cell table-cell_width15">Оценка теста</div>
+					<div class="table-cell table-cell_width15">Дата</div>
+				</div>
+			</div>
+
+			<div class="result-list__body" id="result-list"></div>
+		</div>
+	</div>
+<script>
+
+	POST('/result', 'method=GET', getResultTest);
+	//получаем список результатов теста
+	function getResultTest(req)
+	{
+		let resultList = document.getElementById('result-list');
+		let res = JSON.parse(req.response);
+		let result = res.result;
+		for(let i = 0; i< result.length; i++)
+		{
+			let part = portion(result[i].count, result[i].full);
+			let date = getDateName(result[i].dt);
+			resultList.innerHTML += '<div class="table-row" id="table-row">'+
+										'<div class="table-cell table-cell_width25">'+
+											result[i].firstname+' '+result[i].lastname+
+										'</div>'+
+										'<div class="table-cell table-cell_width25">'+result[i].test_name+'</div>'+
+										'<div class="table-cell">'+result[i].lvl_name+'</div>'+
+										'<div class="table-cell table-cell_width15">'+part+'/100</div>'+
+										'<div class="table-cell table-cell_width15">'+date+'</div>'+
+									'</div>';
+		}
+	}
+	// Функция возвращает процент результата теста 
+	function portion(count, full)
+	{
+		let r = count/full*100;
+		return  Math.round(r);
+	}
+
+	function POST(route, params, funct)
+	{
+		let req = new XMLHttpRequest();
+		req.onreadystatechange = function()
+	{
+	  if(req.readyState == 4) funct(req);
+	}
+		req.open('POST',route);
+		req.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+		req.send(params);
+	}
+	// Функция возвращает время 
+	function getDateName(d)
+	{
+		let now = new Date();
+		let date = new Date(d);
+
+		let m = date.getMonth() + 1;
+		let string = date.getDate() + "." + m + "." + date.getFullYear();
+
+		if(now.getFullYear() == date.getFullYear() && now.getMonth() == date.getMonth())
+		{
+	  		if(now.getDate() == date.getDate())
+		  	{
+			    if(date.getHours() == now.getHours())
+			    {
+			      	if(date.getMinutes() == now.getMinutes())
+			      	{
+			        	return 'только что';
+			      	}
+			      	else
+			      	{
+				        let difference = now.getMinutes() - date.getMinutes();
+				        if(difference < 2) return 'минуту назад';
+				        else if(difference > 1 && difference < 5) return  difference + ' минуты назад';
+				        else if(difference > 4 && difference <21) return difference + ' минут назад';
+				        else if(difference >20)
+				        {
+				        	if(difference%10 < 5 && difference%10 != 0)
+				        	{
+				        		if(difference%10 == 1) return  difference + ' минуту назад';
+				        		else return difference + ' минуты назад';
+				        	}
+				        	else
+			          		{
+			            		return difference + ' минут назад';
+			          		}  
+				        }
+			      	}
+		    	}
+			    else
+			    {
+					let difference = now.getHours() - date.getHours();
+					if(difference == 1)
+					{
+						return 'час назад';
+					}
+					else if(difference > 1 && difference < 5)
+					{
+						return difference + ' часа назад';
+					}
+					else if(difference >= 5 && difference < 21)
+					{
+						return difference + ' часов назад';
+					}
+					else if(difference==21)
+					{
+						return difference + ' час назад';
+					}
+					else if(difference > 21)
+					{
+						return difference + ' часа назад';
+					}
+			    }
+			}
+			else
+			{
+				let difference = now.getDate() - date.getDate();
+
+				if(difference <= 3) 
+				{
+					if(difference == 1)
+					{
+						return 'вчера';
+					}
+					else
+					{
+						return difference + ' дня назад';
+					}
+				}
+				else
+				{
+				  return string;
+				}
+			}
+		}
+		else
+		{
+		  return string;
+		}
+	}
+	
+</script>
+</body>
+</html>
+

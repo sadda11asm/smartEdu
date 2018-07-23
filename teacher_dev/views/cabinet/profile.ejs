@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SmartChat</title>
+	<meta charset="utf-8">
+	<link rel="icon" type="img/png" href="static/img/logo.png">
+	<link rel="stylesheet" type="text/css" href="static/style/profile.css">
+</head>
+<body>
+	<% include ../partial/header %>
+	<div class="wrapper">
+		<% include ../partial/menu %>
+		<div class="profile">
+			<div class="edit_profile_button">
+				<a href ='/redact'><img class="pencil" src="static/img/pencil.svg"></a>
+			</div>
+			<div class="profile_user_ava">
+				<img class = 'profile_photo' id = 'myPhoto'>
+			</div>
+			<div class="user_name">
+				<p id = 'myName'></p>
+			</div>
+			<div class="user_login">
+				<p id = 'myLvl'></p>
+			</div>
+			<div class="user_contact">
+				<p id = 'myEmail'></p>
+			</div>
+			<div class="user_contact">
+				<p id = 'myTel'></p>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+	POST('/teacher', 'method=INFO', (req)=>
+		{
+			let res = JSON.parse(req.response);
+
+			console.log(res);
+			if(req.status == 200)
+			{
+				let body = res.body;
+				document.getElementById('myPhoto').src = body.ava? 'static/profilePictures/' + body.ava : 'static/img/avatar.jpg';
+				document.getElementById('myName').innerHTML = body.firstname + ' ' + body.lastname; 
+				document.getElementById('myEmail').innerHTML = body.email;
+				document.getElementById('myTel').innerHTML = body.phone;
+			}
+			else
+			{
+				console.log(res);
+			}	
+		});
+</script>
+</html>

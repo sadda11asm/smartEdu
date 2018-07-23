@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SmartChat</title>
+	<meta charset="utf-8">
+	<link rel="icon" type="img/png" href="static/img/logo.png">
+	<link rel="stylesheet" type="text/css" href="static/style/template.css?v=1">
+</head>
+<body>
+	<% include ../partial/header %>
+	<div class="wrapper">
+		<% include ../partial/menu %>
+		<div class="nav-temp">
+			<div class="nav-temp__header">Навигация</div>
+			<div class="nav-temp__body" id ='rate'></div>
+		</div>
+
+		<div class="nav-content" id="template-container" style="display: none;">
+			<div class="nav-content__header" id="template-path"></div>
+			<div class="nav-content__body" id="template-list"></div>
+		</div>
+
+ 
+		<div id="myModal" class="modal">
+			<span class="close-popup">&times;</span>
+			<img class="modal-content" id="img01">
+			<div id="caption"></div>
+		</div>
+
+		<div class="modal" id="modal" style="display: none;">
+			<div class="modal__backdrop"></div>
+			<div class="modal__inner">
+				<div class="modal__header">
+					<div id="home_work" class="modal__header_left-block">
+						<div class="modal__btn" for="home_work_input">
+							<img id="home_work_img" src="/static/img/homeWork.png" alt="#">
+						</div>
+					</div>
+					<div class="modal__header_right-block">
+						<div class="modal__btn" onclick="addContent()">
+							<img src="/static/img/down-arrow.svg" alt="#">
+						</div>
+						<div class="modal__btn" onclick="saveModal()">
+							<img src="/static/img/complete.png" alt="#">
+						</div>
+						<div class="modal__btn" onclick="closeModal();">
+							<img src="/static/img/close.png" alt="#">
+						</div>
+					</div>
+
+				</div>
+				<div class="modal__body">
+					<div class="modal__block" style="height: 100%;">
+						<div class="modal-data" id="modalData">
+							<input type="file" id="myFile" onchange="uploadF()" style="display: none;">
+							<div class="modal-content-title link">Текст</div>
+							<div class="modal-content-block">
+								<textarea  id="modalText" cols="30" rows="10" class="modal-text" placeholder="Введите текст"></textarea>
+							</div>
+							<div class="modal-content-title link" id="modalImgHeader" style="display: none;">Изображение</div>
+							<div class="modal-img" id="modalImg" style="display: none;"></div>
+							<div class="modal-content-title link" id="modalVideoHeader" style="display: none;">Видео</div>
+							<div class="modal-img" id="modalVideo" style="display: none;"></div>
+							<div class="modal-content-title link" id="modalAudioHeader" style="display: none;">Аудио</div>
+							<div class="modal-img" id="modalAudio" style="display: none;"></div>
+							<div class="modal-content-title link" id="modalFileHeader" style="display: none;">Файл</div>
+							<div class="modal-img" id="modalFile" style="display: none;"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+<script>
+//запрос для получения списка тарифов
+	POST('/template', 'method=GET-PATH-TO-TEMPLATE', getRateList);
+// функция возвращает список тарифов
+	function getRateList(req)
+	{
+		let result = JSON.parse(req.response);
+		if (result.message) {
+			console.log(result.message)
+		} else {
+			if (result.length>0) {
+				for(let i = 0; i< result.length; i++)
+				{
+					createRateList(result[i]);
+				}
+			}
+		}
+	}
+
+//создаем список тарифов
+	function createRateList(result) {
+		let rate = document.getElementById('rate');
+
+		let rateList = document.createElement('div');
+		rateList.classList.add('rate__list');
+		
+		let arrowDiv = document.createElement('div');
+		arrowDiv.classList.add('arrow-img');
+		arrowDiv.classList.add('arrow-rate');
+		arrowDiv.style.transform = 'rotate(0deg)';
+
+		let arrowImg = document.createElement('img');
+		arrowImg.src = 'static/img/playbutton.svg';
+
+		arrowDiv.appendChild(arrowImg);
+
+		let rateName = document.createElement('div');
+		rateName.classList.add('rate__name');
+		rateName.innerHTML = result.rate_name;
+
+		rateList.appendChild(arrowDiv);
+		rateList.appendChild(rateName);
+
+		rate.appendChild(rateList);
+
+		let level = document.createElement('div');
+		level.classList.add('level');
+		level.id = 'rate-'+result.rate_id;
+		level.style.minHeight = '0vh';
+		level.style.height = '0vh';
+
+		rate.appendChild(level)
+
+		rateList.addEventListener('click', (e)=>
+		{
+			levelElemCount = document.querySelectorAll('.level');
+			arrowDivCount = document.querySelectorAll('.arrow-rate');
+			
+			if (arrowDiv.style.transform == 'rotate(0deg)') {
+				for (var i = 0; i < levelElemCount.length; i++) {
+					levelElemCount[i].style.minHeight = '0vh';
+					levelElemCount[i].style.height = '0vh';
+					arrowDivCount[i].style.transform = 'rotate(0deg)';
+				}
+				arrowDiv.style.transform = 'rotate(90deg)'; 
+				let height = result.level.length * 3.5;
+				myMove(height, level);
+			} else {
+				arrowDiv.style.transform = 'rotate(0deg)';
+				level.style.minHeight = '0vh';
+				level.style.height = '0vh';
+			}
+		});
+		showLevelList(result);
+	}
+
+//показатывает список уровней
+	function showLevelList(result) {
+		for (var i = 0; i < result.level.length; i++) {
+			createLevelList(result.level[i].lvl_name, result.level[i].lvl_id, result.rate_id, result.rate_name, result.level[i].lessons);
+		}
+	}
+
+//создает список уровней
+	function createLevelList(lvl_name, lvl_id, rate_id, rate_name, lessons) {
+		let level = document.getElementById('rate-'+rate_id);
+		levelList = document.createElement('div');
+		levelList.classList.add('level__list');
+
+		let arrowDiv = document.createElement('div');
+		arrowDiv.classList.add('arrow-img');
+		arrowDiv.classList.add('arrow-level');
+		arrowDiv.style.transform = 'rotate(0deg)';
+
+		let arrowImg = document.createElement('img');
+		arrowImg.src = 'static/img/playbutton.svg';
+
+		arrowDiv.appendChild(arrowImg);
+
+		levelList.appendChild(arrowDiv);
+
+		let levelName = document.createElement('div');
+		levelName.classList.add('level__name');
+		levelName.innerHTML = lvl_name;
+
+		levelList.appendChild(levelName);
+
+		level.appendChild(levelList);
+
+		let lesson = document.createElement('div');
+		lesson.classList.add('lesson');
+		lesson.id = 'level-'+rate_id+'-'+lvl_id;
+		lesson.style.minHeight = '0vh';
+		lesson.style.height = '0vh';
+
+		level.appendChild(lesson);
+
+		levelList.addEventListener('click', (e)=>
+		{
+			lessonElemCount = document.querySelectorAll('.lesson');
+			arrowDivCount = document.querySelectorAll('.arrow-level');
+			
+			if (arrowDiv.style.transform == 'rotate(0deg)') {
+				for (var i = 0; i < lessonElemCount.length; i++) {
+					lessonElemCount[i].style.minHeight = '0vh';
+					lessonElemCount[i].style.height = '0vh';
+					arrowDivCount[i].style.transform = 'rotate(0deg)';
+				}
+				arrowDiv.style.transform = 'rotate(90deg)';
+				let height = lessons * 3.5;
+				myMove(height, lesson);
+
+			} else {
+				arrowDiv.style.transform = 'rotate(0deg)';
+				lesson.style.minHeight = '0vh';
+				lesson.style.height = '0vh';
+			}
+		});
+
+		showLessonList(lvl_id, rate_id, lvl_name, rate_name, lessons)
+	}
+
+//myMove
+	function myMove(height, element) {
+	    var elem = element
+	    var pos = 0;
+	    var id = setInterval(frame, 2);
+	    function frame() {
+	        if (pos == height) {
+	            clearInterval(id);
+	        	elem.style.height = 'auto'; 
+	        } else {
+	            pos = pos + 0.5; 
+	            elem.style.minHeight = pos + 'vh'; 
+	        }
+	    }
+	}
+
+//показатывает список уроков
+	function showLessonList(lvl_id, rate_id, lvl_name, rate_name, lessons) {
+		for (var i = 1; i <= lessons; i++) {
+			createLessonList(lvl_id, rate_id, i, lvl_name, rate_name);
+		}
+	}
+
+//создает список уроков
+	function createLessonList(lvl_id, rate_id, lesson_num, lvl_name, rate_name) {
+		let lesson = document.getElementById('level-'+rate_id+'-'+lvl_id);
+		let lessonList = document.createElement('div');
+		lessonList.classList.add('lesson__list');
+		lessonList.style.backgroundColor = '#fff'
+		lessonList.id = 'lessonList-'+rate_id+'-'+lvl_id+'-'+lesson_num;
+
+		let lessonName = document.createElement('div');
+
+		lessonName.innerHTML = 'Урок '+lesson_num;
+
+		lessonList.appendChild(lessonName);
+
+		lesson.appendChild(lessonList);
+
+		lessonList.addEventListener('click', (e)=>
+		{
+			window.newContent = [];
+			window.level_id = lvl_id;
+			window.rate_id = rate_id;
+			window.lesson_num = lesson_num;
+
+			lessonListElemCount = document.querySelectorAll('.lesson__list');
+			
+
+			if (lessonList.style.backgroundColor != 'fff') {
+				for (var i = 0; i < lessonListElemCount.length; i++) {
+					lessonListElemCount[i].style.backgroundColor = '#fff';
+				}
+				lessonList.style.backgroundColor = '#e6edf4';
+
+			} else {
+				lessonList.style.backgroundColor = '#fff';
+			}
+
+			showTemplateList(lvl_id, rate_id, lesson_num, lvl_name, rate_name);
+		});
+	}
+
+//функция показывает список шаблонов
+	function showTemplateList(lvl_id, rate_id, lesson_num, lvl_name, rate_name) {
+
+
+		document.getElementById('template-container').style.display = 'block';
+
+		let div = document.getElementById('template-path');
+
+		while (div.firstChild) {
+			div.removeChild(div.firstChild);
+		}
+
+		let path = document.createElement('div');
+		path.innerHTML = '/'+rate_name+'/'+lvl_name+'/Урок '+lesson_num;
+
+		let button = document.createElement('div');
+		button.classList.add('link');
+		button.innerHTML = 'добавить шаблон';
+		button.addEventListener('click', (e)=>
+		{
+			window.template_id = null;
+			window.editTemplate = false;
+			window.addTemplate = true;
+			window.homeWork = 0;
+			document.getElementById('modal').style.display = 'flex';
+			document.getElementById('home_work_img').classList.add('bg-color-red');
+
+		});
+
+		document.getElementById('home_work').addEventListener('click', (e)=>{
+
+			window.homeWork = window.homeWork == 1? 0:1;
+			document.getElementById('home_work_img').classList.toggle('bg-color-red');
+			document.getElementById('home_work_img').classList.toggle('bg-color-green');
+			console.log(homeWork);
+
+		})
+
+		div.appendChild(path);
+		div.appendChild(button);
+
+		POST('/template', 'method=GET&rate_id='+rate_id+'&lesson_num='+lesson_num+'&lvl_id='+lvl_id, getTemplateList);
+	}
+
+//функция возвращает список шаблонов
+	function getTemplateList(req) {
+		let div = document.getElementById('template-list');
+
+		while (div.firstChild) {
+			div.removeChild(div.firstChild);
+		}
+
+		let res = JSON.parse(req.response);
+		let result = res.template;
+
+		if (res.message) {
+			console.log(res.message);
+		} else {
+			for (var i = 0; i < result.length; i++) {
+
+				createTemplateList(result[i]);
+
+			}
+		}
+	}
+
+//createTemplateSettingBlock
+	function createTemplateSettingBlock(result) {	
+
+		var temp = document.createElement('div');
+		temp.classList.add('template');
+		temp.id = 'temp'+result.temp_id;
+		temp.style.order = result.order;
+
+		var tempHeader = document.createElement('div');
+		tempHeader.classList.add('template__header')
+
+		var settingImg = document.createElement('div');
+		settingImg.style.transform = 'rotate(0deg)';
+		settingImg.style.transition = 'transform 1s';
+		settingImg.id = 'temp-'+result.temp_id;
+		settingImg.classList.add('setting-img');
+
+		var image = document.createElement('img');
+		image.src = 'static/img/gear.svg';
+
+		var settingBlock = document.createElement('div');
+		settingBlock.classList.add('setting');
+		settingBlock.id = 'settingTemplate-'+result.temp_id;
+		settingBlock.style.display = 'none';
+
+		var goUp = document.createElement('div');
+		goUp.classList.add('setting__link');
+		goUp.innerHTML = 'Наверх';
+
+		var goDown = document.createElement('div');
+		goDown.classList.add('setting__link');
+		goDown.innerHTML = 'Вниз';
+
+		var settingEditText = document.createElement('div');
+		settingEditText.classList.add('setting__link');
+		settingEditText.innerHTML = 'Изменить';
+		
+		var settingDeleteText = document.createElement('div');
+		settingDeleteText.classList.add('setting__link');
+		settingDeleteText.innerHTML = 'Удалить';
+
+		var homeImg = document.createElement('div');
+		homeImg.classList.add('setting-img', 'setting-img_cursor-auto');
+
+		if (result.dz == 1) {
+			homeImg.classList.add('bg-color-green');
+		} else {
+			homeImg.classList.add('bg-color-red');
+		}
+
+		var img = document.createElement('img');
+		img.src = 'static/img/homeWorkWhite.png';
+
+		settingImg.appendChild(image);
+		tempHeader.appendChild(settingImg);
+		homeImg.appendChild(img);
+		tempHeader.appendChild(homeImg);
+		settingBlock.appendChild(goUp);
+		settingBlock.appendChild(settingEditText);
+		settingBlock.appendChild(settingDeleteText);
+		settingBlock.appendChild(goDown);
+
+		tempHeader.appendChild(settingBlock);
+		temp.appendChild(tempHeader);
+
+		settingImg.addEventListener('click', (e)=>
+		{
+			if (settingBlock.style.display=='none') {
+				settingBlock.style.display = 'block';
+				templateSetting(result.temp_id);
+			}
+			e.stopPropagation();
+			templateSetting(result.temp_id);
+		});
+
+		settingEditText.addEventListener('click', (e)=>
+		{
+			document.getElementById('modal').style.display = 'flex';
+			fillModal(result);
+			window.template_id = result.temp_id;
+			window.editTemplate = true;
+			window.addTemplate = false;
+		});
+
+		settingDeleteText.addEventListener('click', (e)=>
+		{
+			POST('/template', 'method=DELETE&temp_id='+result.temp_id, function(req) {
+				let res = JSON.parse(req.response);
+				if (res.message) {
+					if (res.message == 'template deleted') {
+						temp.remove();
+					} else {
+						console.log(res)
+					}
+				} 
+			})
+		});
+
+		goUp.addEventListener('click', (e)=>
+			{
+				let id = result.temp_id;
+
+				reverceUp(id);
+
+			});
+
+		goDown.addEventListener('click', (e)=>
+			{
+				let id = result.temp_id;
+				reverceDown(id);
+			});
+
+		return temp;
+	}
+
+//createImgContentHeader
+	function createImgContentHeader(type) {
+		var imgContent = document.createElement('div');
+		imgContent.classList.add('img-content');
+		imgContent.style.order = 2;
+		imgContent.id = ''+type;
+		return imgContent
+	}
+
+//createTextContentHeader
+	function createTextContentHeader(type) {
+		var textContent = document.createElement('div');
+		textContent.classList.add('text-content');
+		textContent.style.order = 1;
+		return textContent
+	}
+
+	function reverceDown(id)
+	{
+		let template_list = document.getElementById('template-list');
+		let children = template_list.children;
+		for(let i=0; i<children.length; i++)
+		{
+			if(children[i].id == 'temp'+id)
+			{
+				if(children[i+1])
+				{
+					let buf = children[i].style.order;
+					children[i].style.order = children[i+1].style.order;
+					children[i+1].style.order = buf;
+
+					template_list.insertBefore(children[i+1], children[i]);
+
+					let first = children[i].id.split('p')[1];
+					let second = children[i+1].id.split('p')[1];
+
+					POST('/template', `method=REVERSE&&first=${first}&&second=${second}`, ()=>{});
+
+					break;
+				}
+			}
+		}
+	}
+
+	function reverceUp(id)
+	{
+		let template_list = document.getElementById('template-list');
+		let children = template_list.children;
+		for(let i=0; i<children.length; i++)
+		{
+			if(children[i].id == 'temp'+id)
+			{
+				if(children[i-1])
+				{					
+					let buf = children[i].style.order;
+					children[i].style.order = children[i-1].style.order;
+					children[i-1].style.order = buf;
+
+					template_list.insertBefore(children[i], children[i-1]);
+
+					let first = children[i].id.split('p')[1];
+					let second = children[i-1].id.split('p')[1];
+
+					POST('/template', `method=REVERSE&&first=${first}&&second=${second}`, ()=>{});
+
+					break;
+				}
+			}
+		}
+	}
+//createVideoContentHeader
+	function createVideoContentHeader(type) {
+		var videoContent = document.createElement('div');
+		videoContent.classList.add('video-content');
+		videoContent.style.order = 5;
+		return videoContent
+	}
+
+//createAudioContentHeader
+	function createAudioContentHeader(type) {
+		var audioContent = document.createElement('div');
+		audioContent.classList.add('video-content');
+		audioContent.style.order = 3;
+		return audioContent
+	}
+
+//createFileContentHeader
+	function createFileContentHeader(type) {
+		var fileContent = document.createElement('div');
+		fileContent.classList.add('file-content');
+		fileContent.style.order = 4;
+		return fileContent
+	}
+
+//createImgContentBody
+	function createImgContentBody(content, imgContent, cont) {
+		let imgBlock = document.createElement('div');
+		imgBlock.classList.add('img-block');
+
+		let imgBlockImage = document.createElement('img');
+		imgBlockImage.src = cont;
+
+		var modal = document.getElementById('myModal');
+		var popUpImg = document.getElementById("img01");
+		var captionText = document.getElementById("caption");
+
+		imgBlockImage.addEventListener('click', function(e) {
+		    modal.style.display = "block";
+		    popUpImg.src = this.src;
+		    captionText.innerHTML = this.alt;
+		});
+
+		var span = document.getElementsByClassName("close-popup")[0];
+
+		span.addEventListener('click', function(e) { 
+		  modal.style.display = "none";
+		});
+
+		imgBlock.appendChild(imgBlockImage);
+
+		imgContent.appendChild(imgBlock);
+
+		content.appendChild(imgContent)
+	}
+
+//createTextContentBody
+	function createTextContentBody(content, textContent, cont) {
+		let textBlock = document.createElement('div');
+		textBlock.classList.add('text-block');
+		textBlock.innerHTML = cont;
+
+		textContent.appendChild(textBlock);
+		content.appendChild(textContent);
+	}
+
+//createVideoContentBody
+	function createVideoContentBody(content, videoContent, cont) {
+		let videoBlock = document.createElement('div');
+		videoBlock.classList.add('video-block');
+
+		let videoBlockChild = document.createElement('div');
+
+		let videoBlockVideo = document.createElement('video');
+		videoBlockVideo.src = cont;
+		let att = document.createAttribute('controls');
+		videoBlockVideo.setAttributeNode(att);
+
+		videoBlockChild.appendChild(videoBlockVideo);
+		videoBlock.appendChild(videoBlockChild);
+		videoContent.appendChild(videoBlock);
+		content.appendChild(videoContent);
+	}
+
+//createAudioContentBody
+	function createAudioContentBody(content, audioContent, cont) {
+		let audioBlock = document.createElement('div');
+		audioBlock.classList.add('audio-block');
+
+		let audioBlockAudio = document.createElement('audio');
+		audioBlockAudio.src = cont;
+		let attr = document.createAttribute('controls');
+		audioBlockAudio.setAttributeNode(attr);
+
+		audioBlock.appendChild(audioBlockAudio);
+		audioContent.appendChild(audioBlock);
+		content.appendChild(audioContent);
+	}
+
+//createFileContentBody
+	function createFileContentBody(content, fileContent, cont) {
+		let fileBlock = document.createElement('div');
+		fileBlock.classList.add('file-block');
+
+		let fileBlockImg = document.createElement('div');
+		fileBlockImg.classList.add('file-img');
+
+		let fileImg = document.createElement('img');
+		fileImg.src = 'static/img/file.svg';
+
+		fileBlockImg.appendChild(fileImg);
+
+		let fileName = document.createElement('div');
+		fileName.classList.add('file-name');
+		let fileLink = document.createElement('a');
+		fileLink.href = cont;
+		let fileNewName = cont.split('/');
+		fileName.title = fileNewName[fileNewName.length-1];
+		fileNewName = fileNewName[fileNewName.length-1].slice(0, 15)+'...';
+		fileLink.innerHTML = fileNewName;
+		let attri = document.createAttribute('download');
+		fileLink.setAttributeNode(attri);
+
+		fileName.appendChild(fileLink);
+
+		fileBlock.appendChild(fileBlockImg)
+		fileBlock.appendChild(fileName)
+
+		fileContent.appendChild(fileBlock);
+		content.appendChild(fileContent);
+	}
+
+//создает контент
+	function createTemplateList(result) {
+		if (result.content.length>0) {	
+
+			let div = document.getElementById("template-list");
+			let temp = createTemplateSettingBlock(result);
+
+			let content = document.createElement('div');
+			content.id = 'template-'+result.temp_id;
+			content.classList.add('template__body');
+
+			let typeImgFlag = false;
+			let typeTextFlag = false;
+			let typeVideoFlag = false;
+			let typeAudioFlag = false;
+			let typeFileFlag = false;
+
+			for (var i = 0; i < result.content.length; i++) {
+				let type = result.content[i].type;
+				let cont = result.content[i].content;
+				switch(type){
+					case 2:
+					if (!typeImgFlag) {
+						var imgContent = createImgContentHeader(type);
+						typeImgFlag = true;
+					} 
+					createImgContentBody(content, imgContent, '/common/files/'+cont);
+					break;
+					case 1:
+					if (!typeTextFlag) {
+						var textContent = createTextContentHeader(type);
+						typeTextFlag = true;
+					}
+					createTextContentBody(content, textContent, cont);
+					break;
+					case 5:
+					if (!typeVideoFlag) {
+						var videoContent = createVideoContentHeader(type);
+						typeVideoFlag = true;
+					}
+					createVideoContentBody(content, videoContent, '/common/files/'+cont);
+					break;
+					case 3:
+					if (!typeAudioFlag) {
+						var audioContent = createAudioContentHeader(type);
+						typeAudioFlag = true;
+					}
+					createAudioContentBody(content, audioContent, '/common/files/'+cont)
+					break;
+					case 4:
+					if (!typeFileFlag) {
+						var fileContent = createFileContentHeader(type);
+						typeFileFlag = true;
+					}
+					createFileContentBody(content, fileContent, '/common/files/'+cont)
+					break;
+				}
+			}
+
+			temp.appendChild(content)
+			div.appendChild(temp);
+
+		}
+	}
+
+//editTemplateList
+	function editTemplateList(result) {
+
+		let div = document.getElementById("template-list");
+
+		let oldTemp = document.getElementById('temp'+result.temp_id);
+
+		let temp = createTemplateSettingBlock(result);
+
+
+		let content = document.createElement('div');
+		content.id = 'template-'+result.temp_id;
+		content.classList.add('template__body');
+
+		let typeImgFlag = false;
+		let typeTextFlag = false;
+		let typeVideoFlag = false;
+		let typeAudioFlag = false;
+		let typeFileFlag = false;
+
+		for (var i = 0; i < result.content.length; i++) {
+			let type = result.content[i].type;
+			let cont = result.content[i].content;
+			switch(type){
+				case 2:
+				if (!typeImgFlag) {
+					var imgContent = createImgContentHeader(type);
+					typeImgFlag = true;
+				} 
+				createImgContentBody(content, imgContent, '/common/files/'+cont);
+				break;
+				case 1:
+				if (!typeTextFlag) {
+					var textContent = createTextContentHeader(type);
+					typeTextFlag = true;
+				}
+				createTextContentBody(content, textContent, cont);
+				break;
+				case 5:
+				if (!typeVideoFlag) {
+					var videoContent = createVideoContentHeader(type);
+					typeVideoFlag = true;
+				}
+				createVideoContentBody(content, videoContent, '/common/files/'+cont);
+				break;
+				case 3:
+				if (!typeAudioFlag) {
+					var audioContent = createAudioContentHeader(type);
+					typeAudioFlag = true;
+				}
+				createAudioContentBody(content, audioContent, '/common/files/'+cont)
+				break;
+				case 4:
+				if (!typeFileFlag) {
+					var fileContent = createFileContentHeader(type);
+					typeFileFlag = true;
+				}
+				createFileContentBody(content, fileContent, '/common/files/'+cont)
+				break;
+			}
+		}
+
+		temp.appendChild(content);
+		div.insertBefore(temp, oldTemp);
+		oldTemp.remove();
+
+	}
+	
+//fillModal
+	function fillModal(result) {
+		if (result.dz == 1) {
+
+			window.homeWork = 1;
+			document.getElementById('home_work_img').classList.add('bg-color-green');
+
+		} else {
+
+			window.homeWork = 0;
+			document.getElementById('home_work_img').classList.add('bg-color-red');
+		}
+		
+		
+		
+		for (var i = 0; i < result.content.length; i++) {
+			let type = result.content[i].type;
+			let content = result.content[i].content;
+			let uniqID = generateQuickGuid();
+
+			let contentData = {
+				uniqID: uniqID,
+				type: type,
+				content: result.content[i].content
+			}
+
+			window.newContent.push(contentData);
+
+			switch(type)
+			{
+				case 2:
+					createImgContent('/common/files/'+content, uniqID);
+				break;
+				case 3: 
+					createAudioContent('/common/files/'+content, uniqID);
+				break;
+				case 4: 
+					createFileContent('/common/files/'+content, uniqID);
+				break;
+				case 5: 
+					createVideoContent('/common/files/'+content, uniqID);
+				break;
+				case 1: 
+					createTextContent(content);
+				
+				break;
+			}
+		}
+	}
+
+//appendContent
+	function appendContent(response,type) 
+	{
+		var content_id = false;
+
+		let uniqID = generateQuickGuid();
+
+		let contentData = {
+			uniqID: uniqID,
+			type: type,
+			content: response
+		}
+
+		window.newContent.push(contentData);
+
+		switch(type)
+		{
+			case 2:
+				createImgContent('/common/files/'+response, uniqID);
+			break;
+			case 3: 
+				createAudioContent('/common/files/'+response, uniqID);
+			break;
+			case 4: 
+				createFileContent('/common/files/'+response, uniqID);
+			break;
+			case 5: 
+				createVideoContent('/common/files/'+response, uniqID);
+			break;
+		}
+	}
+
+//createTextContent
+	function createTextContent(response) {
+		
+		let modalText = document.getElementById('modalText');
+
+		if (response) {
+			modalText.value = response;
+		} else {
+			modalText.value = '';
+		}
+	}
+
+//createImgContent 
+	function createImgContent(response, cont_id) {
+
+		let modalImgHeader = document.getElementById('modalImgHeader');
+		modalImgHeader.style.display = 'flex';
+
+		let modalImg = document.getElementById('modalImg');
+		modalImg.style.display = 'flex';
+
+		let deleteImgBlock = document.createElement('div');
+		deleteImgBlock.classList.add('modal__close');
+
+		let deleteImg = document.createElement('img');
+		deleteImg.src = '/static/img/close.svg';
+
+		deleteImgBlock.appendChild(deleteImg);
+
+		let modalImgBlock = document.createElement('div');
+		modalImgBlock.classList.add('modal-img__block');
+		modalImgBlock.id = 'content-'+cont_id;
+
+		let image = document.createElement('img');
+		image.src = response;
+
+		modalImgBlock.appendChild(deleteImgBlock);
+		modalImgBlock.appendChild(image);
+		modalImg.appendChild(modalImgBlock);
+		
+		deleteImgBlock.addEventListener('click', function(e) {
+			deleteContent(cont_id);
+			modalImgBlock.remove()
+		});
+	}
+
+//createAudioContent
+	function createAudioContent(response, cont_id) {
+		
+		let modalAudioHeader = document.getElementById('modalAudioHeader');
+		modalAudioHeader.style.display = 'flex';
+
+		let modalAudio = document.getElementById('modalAudio');
+		modalAudio.style.display = 'flex';
+
+		let deleteAudioBlock = document.createElement('div');
+		deleteAudioBlock.classList.add('modal__close');
+
+		let deleteAudio = document.createElement('img');
+		deleteAudio.src = '/static/img/close.svg';
+
+		deleteAudioBlock.appendChild(deleteAudio);
+
+		let modalAudioBlock = document.createElement('div');
+		modalAudioBlock.id = 'content-'+cont_id;
+		modalAudioBlock.classList.add('modal-audio__block');
+
+		let audio = document.createElement('audio');
+		audio.src = response;
+
+		let attr = document.createAttribute('controls');
+		audio.setAttributeNode(attr);
+
+
+		modalAudioBlock.appendChild(deleteAudioBlock);
+		modalAudioBlock.appendChild(audio);
+		modalAudio.appendChild(modalAudioBlock);
+		
+		deleteAudioBlock.addEventListener('click', function(e) {
+			deleteContent(cont_id);
+			modalAudioBlock.remove();
+		})
+	}
+
+//createFileContent
+	function createFileContent(response, cont_id) {
+		
+		let modalFileHeader = document.getElementById('modalFileHeader');
+		modalFileHeader.style.display = 'flex';
+
+		let modalFile = document.getElementById('modalFile');
+		modalFile.style.display = 'flex';
+
+		let deleteFileBlock = document.createElement('div');
+		deleteFileBlock.classList.add('modal__close');
+
+		let deleteFile = document.createElement('img');
+		deleteFile.src = '/static/img/close.svg';
+
+		deleteFileBlock.appendChild(deleteFile);
+
+		let modalFileBlock = document.createElement('div');
+		modalFileBlock.id = 'content-'+cont_id;
+		modalFileBlock.classList.add('modal-file__block');
+
+		let fileImg = document.createElement('div');
+		fileImg.classList.add('file-img');
+		let img = document.createElement('img');
+		img.src = 'static/img/file.svg';
+
+		let fileName = document.createElement('div');
+		fileName.classList.add('file-name');
+
+		let link = document.createElement('a');
+		link.href = response;
+		let fileNewName = response.split('/');
+		fileNewName = fileNewName[fileNewName.length-1];
+		link.innerHTML  = fileNewName;
+
+		fileName.appendChild(link)
+		fileImg.appendChild(img);
+
+		modalFileBlock.appendChild(deleteFileBlock);
+		modalFileBlock.appendChild(fileImg);
+		modalFileBlock.appendChild(fileName);
+
+		modalFile.appendChild(modalFileBlock);
+
+		deleteFileBlock.addEventListener('click', function(e) {
+			deleteContent(cont_id);
+			modalFileBlock.remove();
+		})
+	}
+
+//createVideoContent
+	function createVideoContent(response, cont_id) {
+		
+		let modalVideoHeader = document.getElementById('modalVideoHeader');
+		modalVideoHeader.style.display = 'flex';
+
+		let modalVideo = document.getElementById('modalVideo');
+		modalVideo.style.display = 'flex';
+
+		let deleteVideoBlock = document.createElement('div');
+		deleteVideoBlock.classList.add('modal__close');
+
+		let deleteVideo = document.createElement('img');
+		deleteVideo.src = '/static/img/close.svg';
+
+		deleteVideoBlock.appendChild(deleteVideo);
+
+		let modalVideoBlock = document.createElement('div');
+		modalVideoBlock.id = 'content-'+cont_id;
+		modalVideoBlock.classList.add('modal-video__block');
+
+		let video = document.createElement('video');
+		video.src = response;
+
+		let at = document.createAttribute('controls');
+		video.setAttributeNode(at);
+
+		modalVideoBlock.appendChild(deleteVideoBlock);
+		modalVideoBlock.appendChild(video);
+		modalVideo.appendChild(modalVideoBlock);
+
+		deleteVideoBlock.addEventListener('click', function(e) {
+			deleteContent(cont_id);
+			modalVideoBlock.remove();
+		})
+	}
+
+//closeModal
+	function closeModal() {
+		document.getElementById('modal').style.display = 'none';
+		clearModal();
+	}
+
+//saveModal
+	function saveModal() {
+		document.getElementById('modal').style.display = 'none';
+
+		let issetText = false;
+
+		for (var i = 0; i < window.newContent.length; i++) {
+			if (window.newContent[i].type == 1) {
+				let modalText = document.getElementById('modalText');
+				window.newContent[i].content = modalText.value;
+				issetText = true;
+			} 
+		}
+
+		if (!issetText) {
+
+			let modalText = document.getElementById('modalText');
+			 
+			let contentData = {
+				uniqID: null,
+				type: 1,
+				content: modalText.value
+			}
+
+			window.newContent.push(contentData);
+		}
+
+		if (window.addTemplate && window.newContent.length>0) {
+			POST('/template', 'method=POST&data='+JSON.stringify(window.newContent)+'&rate_id='+window.rate_id+'&lvl_id='+window.level_id+'&lesson_num='+window.lesson_num+'&dz='+window.homeWork, 
+				function(req) {
+					let res = JSON.parse(req.response);
+					if (!res.message) {
+						createTemplateList(res);
+					} else {
+						console.log(res);
+					}
+				}
+			);
+		} else if(window.editTemplate) {
+			POST('/template', 'method=PATCH&data='+JSON.stringify(window.newContent)+'&temp_id='+window.template_id+'&rate_id='+window.rate_id+'&lvl_id='+window.level_id+'&lesson_num='+window.lesson_num+'&dz='+window.homeWork, 
+				function(req) {
+					let res = JSON.parse(req.response);
+					if (!res.message) {
+						editTemplateList(res)
+					} else {
+						let temp = document.getElementById('temp'+window.template_id).remove()
+					}
+				}
+			);
+		}
+
+		clearModal();
+
+	}
+
+//clearModal
+	function clearModal() {
+
+		window.newContent = [];
+		window.homeWork = 0;
+		document.getElementById('home_work_img').classList.remove('bg-color-red');
+		document.getElementById('home_work_img').classList.remove('bg-color-green');
+
+
+
+		let modalImgHeader = document.getElementById('modalImgHeader');
+		modalImgHeader.style.display = 'none';
+		let modalImg = document.getElementById('modalImg');
+		while (modalImg.firstChild) {
+		  modalImg.removeChild(modalImg.firstChild);
+		}
+		modalImg.style.display = 'none';
+		
+		let modalAudioHeader = document.getElementById('modalAudioHeader');
+		modalAudioHeader.style.display = 'none';
+		let modalAudio = document.getElementById('modalAudio');
+		while (modalAudio.firstChild) {
+		  modalAudio.removeChild(modalAudio.firstChild);
+		}
+		modalAudio.style.display = 'none';
+
+		let modalFileHeader = document.getElementById('modalFileHeader');
+		modalFileHeader.style.display = 'none';
+		let modalFile = document.getElementById('modalFile');
+		while (modalFile.firstChild) {
+		  modalFile.removeChild(modalFile.firstChild);
+		}
+		modalFile.style.display = 'none';
+
+		let modalVideoHeader = document.getElementById('modalVideoHeader');
+		modalVideoHeader.style.display = 'none';
+		let modalVideo = document.getElementById('modalVideo');
+		while (modalVideo.firstChild) {
+		  modalVideo.removeChild(modalVideo.firstChild);
+		}
+		modalVideo.style.display = 'none';
+
+
+		let modalText = document.getElementById('modalText');
+		modalText.value = '';
+
+	}
+
+//delete content 
+	function deleteContent(uniqID) {
+		let index = window.newContent.findIndex(function(item) {
+		    return item.uniqID === uniqID;
+		});
+		window.newContent.splice(index, 1);
+
+		let typeImgFlag = false;
+		let typeAudioFlag = false;
+		let typeFileFlag = false;
+		let typeVideoFlag = false;
+
+		for (var i = 0; i < window.newContent.length; i++) {
+			if (window.newContent[i].type == 2) {
+				typeImgFlag = true;
+			} else if (window.newContent[i].type == 3) {
+				typeAudioFlag = true;
+			} else if (window.newContent[i].type == 4) {
+				typeFileFlag = true;
+			} else if (window.newContent[i].type == 5) {
+				typeVideoFlag = true;
+			}
+		}
+
+		if (!typeImgFlag) {
+			let modalImgHeader = document.getElementById('modalImgHeader');
+			modalImgHeader.style.display = 'none';
+			let modalImg = document.getElementById('modalImg');
+			modalImg.style.display = 'none';
+		}
+
+		if (!typeAudioFlag) {
+			let modalAudioHeader = document.getElementById('modalAudioHeader');
+			modalAudioHeader.style.display = 'none';
+			let modalAudio = document.getElementById('modalAudio');
+			modalAudio.style.display = 'none';
+		}
+
+		if (!typeFileFlag) {
+			let modalFileHeader = document.getElementById('modalFileHeader');
+			modalFileHeader.style.display = 'none';
+			let modalFile = document.getElementById('modalFile');
+			modalFile.style.display = 'none';
+		}
+
+		if (!typeVideoFlag) {
+			let modalVideoHeader = document.getElementById('modalVideoHeader');
+			modalVideoHeader.style.display = 'none';
+			let modalVideo = document.getElementById('modalVideo');
+			modalVideo.style.display = 'none';
+		}
+
+	}
+	
+//Функция вызывает функцию uploadF()
+	function addContent() {
+		document.getElementById('myFile').click();
+	}
+
+//Функция загружает данные
+	function uploadF()
+	{
+		let file = document.getElementById('myFile').files[0];
+		sendFile('/tempFile', file, (response)=>
+		{
+			appendContent(response, getFileType(file))		
+		});
+		document.getElementById('myFile').value = '';
+	}
+
+// Функция определяющая тип файла
+	function getFileType(file)
+	{
+		let type = file.type.split('/')[0];
+		switch(type)
+		{
+		  case 'image':   return 2;
+		  case 'audio':   return 3;
+		  case 'video':   return 5;
+		  default:     return 4;
+		}
+	}
+
+//POST
+	function POST(route, params, funct)
+	{
+		let req = new XMLHttpRequest();
+		req.onreadystatechange = function()
+		{
+		  if(req.readyState == 4) funct(req);
+		}
+		req.open('POST',route);
+		req.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+		req.send(params);
+	}
+
+//templateSetting
+	function templateSetting(id){
+		var x = document.getElementsByClassName('setting');
+		var y = document.getElementById('settingTemplate-'+id);
+		if (!y.style.display || y.style.display == 'none') {
+			for (var i = 0; i < x.length; i++) {
+				x[i].style.display="none";
+			}
+			y.style.display="block";
+		} else  {
+			for (var i = 0; i < x.length; i++) {
+				x[i].style.display="none";
+			}
+		}
+	}
+
+//generateQuickGuid
+	function generateQuickGuid() {
+	    return Math.random().toString(36).substring(2, 15) +
+	           Math.random().toString(36).substring(2, 15);
+	}
+
+//clickHandler
+	function clickHandler(e){
+		var elem, evt = e ? e:event;
+		if (evt.target) {
+			elem = evt.target;
+			if (elem.className != 'setting-img') {
+				var x = document.getElementsByClassName('setting');
+				for (var i = 0; i < x.length; i++) {
+					x[i].style.display="none";
+				}
+			} 
+		} 
+		return true;
+	}
+	window.onclick = clickHandler;
+
+</script>
+</body>
+</html>
+

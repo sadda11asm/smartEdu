@@ -1,0 +1,10 @@
+{
+	"wsport": 5151,
+	"port": 5150,
+	"db": {
+	    "host": "localhost",
+	    "user": "anvar",
+	    "password": "Anvar2018",
+	    "database": "smartEdu"
+	}
+}

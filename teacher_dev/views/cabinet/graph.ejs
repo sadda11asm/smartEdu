@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SmartChat</title>
+	<meta charset="utf-8">
+	<link rel="icon" type="img/png" href="static/img/logo.png">
+	<link rel="stylesheet" type="text/css" href="static/style/graph&reqs.css">
+</head>
+<body>
+	<% include ../partial/header %>
+	<div class="wrapper">
+		<% include ../partial/menu %>
+		<div class="profile">
+			<div class="container gr_container">
+				<h2>Рабочее время</h2>
+				<table class="table_grafik">
+					<tr id = 'tr1'>
+						<td>
+							<span class="day_in_line">
+								Понедельник
+							</span>
+						</td>
+						<td>
+							<select class="jm_select">
+								<option>нет</option>
+							</select>
+						</td>
+						<td>
+							<select class="jm_select">
+								<option>нет</option>
+							</select>
+						</td>
+					</tr>
+					<tr id = 'tr2'>
+						<td>
+							<span class="day_in_line">
+								Вторник
+							</span>
+						</td>
+						<td>
+							<select class="jm_select">
+								<option>нет</option>
+							</select>
+						</td>
+						<td>
+							<select class="jm_select">
+								<option>нет</option>
+							</select>
+						</td>
+					</tr>
+					<tr id = 'tr3'>
+						<td>
+							<span class="day_in_line">
+								Среда
+							</span>
+						</td>
+						<td>
+							<select class="jm_select">
+								<option>нет</option>
+							</select>
+						</td>
+						<td>
+							<select class="jm_select">
+								<option>нет</option>
+							</select>
+						</td>
+					</tr>
+					<tr id = 'tr4'>
+						<td>
+							<span class="day_in_line">
+								Четверг
+							</span>
+						</td>
+						<td>
+							<select class="jm_select">
+								<option>нет</option>
+							</select>
+						</td>
+						<td>
+							<select class="jm_select">
+								<option>нет</option>
+							</select>
+						</td>
+					</tr>
+					<tr id = 'tr5'>
+						<td>
+							<span class="day_in_line">
+								Пятница
+							</span>
+						</td>
+						<td>
+							<select class="jm_select">
+								<option>нет</option>
+							</select>
+						</td>
+						<td>
+							<select class="jm_select">
+								<option>нет</option>
+							</select>
+						</td>
+					</tr>
+					<tr id = 'tr6'>
+						<td>
+							<span class="day_in_line">
+								Суббота
+							</span>
+						</td>
+						<td>
+							<select class="jm_select">
+								<option>нет</option>
+							</select>
+						</td>
+						<td>
+							<select class="jm_select">
+								<option>нет</option>
+							</select>
+						</td>
+					</tr>
+					<tr id = 'tr7'>
+						<td>
+							<span class="day_in_line">
+								Воскресенье
+							</span>
+						</td>
+						<td>
+							<select class="jm_select">
+								<option>нет</option>
+							</select>
+						</td>
+						<td>
+							<select class="jm_select">
+								<option>нет</option>
+							</select>
+						</td>
+					</tr>
+				</table>
+				<button class="edit_btn" id = 'save' onclick="saveGraph()">Сохранить</button>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+// Глобальные переменные
+	let trs = document.querySelector('.table_grafik').children[0].children;
+// Функция возврациет название дня недели
+	function getDayName(i)
+	{
+		switch(i)
+		{
+			case 0 : return 'Воскресенье';
+			case 1 : return 'Понедельник';
+			case 2 : return 'Вторник';
+			case 3 : return 'Среда';
+			case 4 : return 'Четверг';
+			case 5 : return 'Пятница';
+			case 6 : return 'Суббота';
+			default: return 'Ошибка';
+		}
+	}
+// Генерация чисел
+	let selects = document.getElementsByClassName('jm_select');
+
+	for(let i =0 ;i<selects.length; i++)
+	{
+		for(let j =0; j<25; j++)
+		{
+			let option = document.createElement('option');
+			option.innerHTML = j +':00';
+			option.value = j;
+			selects[i].appendChild(option);
+		}
+	}
+
+// Функция для ответа после сохранения графика
+	function afterSave(req)
+	{
+		if(req.status == 200)
+		{
+			notifier('График успешно сохранен!', 'green');
+		}
+		else if(req.status == 202)
+		{
+			let res = JSON.parse(req.response);
+
+			notifier('У вас запланированное занятие: '+getDayName(res.day) + ' c '+res.start + ':00 до '+res.finish + ':00', 'red');
+
+			let z = res.day-1;
+			if(res.day == 0) z = 6;
+
+			trs[z].style.background = 'linen';
+		}
+	}
+// Функция для проверки корректности графика и его получения со страницы
+	function checkGraph()
+	{
+		let mas = [];
+
+		for(let i = 0; i< trs.length; i++)
+		{
+			let sel = trs[i].getElementsByClassName('jm_select');
+			trs[i].style.background = 'white';
+			if((sel[0].value == 'нет' && sel[1].value != 'нет') || (sel[0].value != 'нет' && sel[1].value == 'нет'))
+			{
+				notifier('Некорректное время', 'red');
+				trs[i].style.background = 'linen';
+				return [];
+			}
+
+			if(sel[0].value != 'нет' && sel[1].value != 'нет')
+			{
+				let start = sel[0].value;
+				let finish = sel[1].value;
+
+				if(Number(start) >= Number(finish)) 
+				{
+					notifier('Некорректное время', 'red');
+					trs[i].style.background = 'linen';
+					return [];
+				}
+				let day = i+1;
+				if(day == 7) day = 0;
+				mas.push(start);
+				mas.push(finish);
+				mas.push(day);
+			}
+		}
+		return mas;
+	}
+// Функция для сохранения графика
+	function saveGraph()
+	{
+		let mas = checkGraph();
+		if(mas.length > 0) 
+			POST('/graph', 'method=POST&&mas=' + mas, afterSave);
+	}
+
+// Функция выводит графиик
+	function getGraph(req)
+	{
+		if(req.status == 200)
+		{
+			let res = JSON.parse(req.response);
+			let body = res.body;
+			for(let i = 0; i< body.length; i++)
+			{
+				let index = body[i].nday-1;
+				if(body[i].nday == 0) index = 6;
+
+				let tr = trs[index];
+				let sel = tr.getElementsByClassName('jm_select');
+				sel[0].value = body[i].start;
+				sel[1].value = body[i].finish;
+			}
+		}
+	}
+
+//Скрипт
+	POST('/graph','method=GET', getGraph);
+</script>
+</html>

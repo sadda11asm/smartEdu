@@ -1,0 +1,14 @@
+<!Doctype html>
+<header class="header">
+	<div class="logo" onclick = 'reload(event)'>
+		<a><img src="/img/logo.png"></a>
+		<span class="smart_title"><a>Smart</a><a>EDU</a></span>
+	</div>
+</header>
+<script type="text/javascript">
+	function reload(e)
+	{
+		window.history.pushState({page_id: 0, page: 'page'}, '', domen);
+		generateContent();
+	}
+</script>

@@ -1,0 +1,189 @@
+/*************common***************/
+body
+{
+	margin: 0;
+	padding: 0; 
+}
+.wrapper
+{
+	margin-top: 8vh;
+	width: 100%;
+	height: 92vh;
+	background: linear-gradient(115deg, #f6f7fb 60%,#92a7d0 60%);
+}
+
+.content
+{
+    margin-left: 28vh;
+	width: 84%;
+	height: 90vh;
+	position: fixed;
+}
+
+.backpop
+{
+	width: 100%;
+	height: 95vh;
+	background: rgba(0,0,0,0.5);
+	z-index: 2;
+	position: fixed;
+	display: none;
+}
+
+.popup
+{
+	width: 50%;
+	height: 80vh;
+	position: fixed;
+	z-index: 2;
+	margin-top: 6vh;
+	margin-left: 25%;
+	position: relative;
+	border: .1vh solid #E0FFFF;
+	background: white;
+}
+
+/*********scroll*********/
+::-webkit-scrollbar{
+width: 1.2vh;
+}
+
+::-webkit-scrollbar-track {
+background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+-webkit-border-radius: 1vh;
+-webkit-height: .2vh;
+border-radius: 1vh;
+background-color: gray;
+}
+
+/*********hidden scroll************/
+
+.hidden_scroll::-webkit-scrollbar{
+width: .2vh;
+}
+
+.hidden_scroll::-webkit-scrollbar-track 
+{
+background-color: transparent;
+}
+
+.hidden_scroll::-webkit-scrollbar-thumb 
+{
+-webkit-border-radius: .2vh;
+-webkit-height: .2vh;
+border-radius: 0vh;
+background-color: gray;
+}
+/************left menu***********/
+.nav_menu
+{
+	padding: 5vh 1vh;
+	float: left;
+	width: 26vh;
+	height: 89%;
+	min-width: 5vh;
+	border-right: .1vh solid #97b2ca;
+	overflow: hidden;
+	/*border-bottom: .1vh solid #97b2ca;*/
+}
+
+.nav_menu a
+{
+	text-decoration: none;
+}
+
+.nav_menu div
+{
+	display: flex;
+}
+
+.menu_item--desc
+{
+	height: 4vh;
+	padding: 1vh;
+	cursor: pointer;
+}
+.menu_item--desc:hover
+{
+	background: #e6edf4;
+	border-radius: 1vh;
+}
+.menu_item--desc img
+{
+	height: 3vh;
+	float: left;
+	margin: 0 2vh 0 0;
+}
+.menu_item--desc span
+{
+	float: left;
+	color: #97b2ca;
+	font-size: 3vh;
+}
+/************left menu end********/
+
+
+/************header**************/
+.header
+{
+	position: fixed;
+	top: 0;
+	right: 0;
+	left: 0;
+	height: 8vh;
+	background: #fff;
+    box-shadow: 0 0 4vh .2vh #eceef1;
+    z-index: 20;
+}
+
+.logo
+{
+	float: left;
+	cursor: pointer;
+	margin: 0 5vh;
+}
+
+.logo img
+{
+	width: 10vh;
+	float: left;
+}
+
+.smart_title
+{
+	color: #eee;
+    float: left;
+    font-size: 4vh;
+    vertical-align: middle;
+    padding: 2vh 1vh;
+}
+.smart_title a
+{
+	color: #0088b8;
+	text-decoration: none;
+}
+
+.current_nav
+{
+	background: #e6edf4;
+}
+/************header end**********/
+
+/*Это для браузера Chrome:*/
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/*Это для браузера Firefox:*/
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+input[type="number"]:hover,
+input[type="number"]:focus {
+  -moz-appearance: number-input;
+}

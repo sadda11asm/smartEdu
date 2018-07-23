@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SmartChat</title>
+	<meta charset="utf-8">
+	<link rel="icon" type="img/png" href="static/img/logo.png">
+	<link rel="stylesheet" type="text/css" href="static/style/graph&reqs.css">
+</head>
+<body>
+	<% include ../partial/header %>
+	<div class="wrapper">
+		<% include ../partial/menu %>
+		<div class="profile">
+			<div class="container requests">
+				<h3>Заявки</h3>
+				<ul id = 'reqs' class = 'ulreqs'>
+				</ul>
+				<ul id = 'ones' class = 'ulreqs'>
+				</ul>
+			</div>
+			<div class="container student_graph" style="display: none;" id = 'graph'>
+				<h2 id='rate_name' class = 'rate_name'></h2>
+				<div class="graph_block">
+					<table id = 'tbl' cellspacing="5">
+					</table>
+				</div>
+				<button id = 'ignore' class="button ignore" onclick="rejectReq()">Отклонить</button>
+				<button id = 'accept' class="button accept">Принять</button>
+			</div>
+
+			<div class="back" style="display: none;">
+				<div id = 'groups' class="container acception">
+					<h2>Подходящие группы</h2>
+					<div id = 'cont' class ='cont'></div>
+					<button id = 'new_group_btn' class ='button new_group'>В новую</button>
+					<button id = 'cancel' class="button cancel">Отмена</button>
+					<button id = 'accept_btn' class="button accept">Принять</button>
+				</div>
+				<div id = 'new_group' class="container new_group_cont">
+						<h2 id = 'new_group_title'></h2>
+						<label for="new_group_name" id ='new_group_name_title'></label>
+						<input type="text" name="" id ='new_group_name' class = 'new_group_name'>
+						<div style="overflow-y: auto; height: 40vh">
+							<table id = 'grafik' class="table_grafik">
+							</table>
+						</div>
+					<input type="text" id = 'firstday' class="firstday" placeholder="Первое занятие" onfocus="(this.type='date')">
+					<button id = 'cancel_new' class="button cancel">Отмена</button>
+					<button id = 'create_btn' class="button accept">Принять</button>
+				</div>
+			</div>
+		</div>
+		<div class = 'background'>
+			<div id = 'validator' class="validator">
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="static/js/request.js"></script>
+<script type="text/javascript">
+//Глобальные переменные
+	let current_student_id = 0;
+	let current_group_type = 0;
+	let current_student_name = '';
+	let current_rate = null;
+	let unlim = 0;
+	let reqs = document.getElementById('reqs');
+	let ones = document.getElementById('ones');
+	let graph = document.getElementById('graph');
+	let firstday = document.getElementById('firstday');
+	let lessons = 0;
+// Функция принимает ответ после добавления в новую группу
+	function getResponse(req)
+	{
+		if(req.status == 200)
+		{
+			notifier('Заявка успешно обработана!\nСтудент добавлен. Ваше расписание изменилось.', 'green');
+			document.querySelector('.back').style.display = 'none';
+			document.getElementById('new_group').style.display = 'none';
+			deleteReq(current_student_id);
+			document.querySelector('.background').style.display = 'none';
+
+			ws.send(JSON.stringify({
+				notice: 	5,
+				student: 	current_student_id,
+				rate: 		current_rate
+			}));
+
+			if(current_group_type) 
+				ws.send(JSON.stringify({
+					notice: 7,
+					student: 	current_student_id,
+					rate: 		current_rate
+				}));
+		}
+		else if(req.status == 202)
+		{
+			let res = JSON.parse(req.response);
+			console.log(res);
+			switch(res.code)
+			{
+				case 1:
+				notifier(getDayName(Number(res.day)) + ': время '+res.start+':00 - '+ res.finish + ':00'+' не входит в ваш график работы!', 'red');
+				break;
+				case 2:
+				let date = new Date(res.today);
+				let m = date.getMonth() + 1;
+				notifier(date.getDate() + '.' + m + '.' + date.getFullYear() + ': у вас и так много групп!', 'red');
+				break;
+				case 3:
+				notifier(res.message, 'red');
+				break;
+				case 4:
+				notifier(res.message, 'red');
+				break;
+				case 5:
+				notifier(res.message, 'red');
+				firstday.style.background = 'linen';
+				break;
+				case 100:
+				notifier(res.message, 'red');
+				break;
+				default:
+				notifier('Не опознал код ответа!', 'red');
+				break;
+			}
+			document.querySelector('.background').style.display = 'none';
+		}
+		else
+		{
+			notifier('Статус ответа плох!', 'blue');
+		}
+	}
+
+// Добавляем студента в новую группу
+	document.getElementById('create_btn').addEventListener('click', function()
+		{
+			let gr_name = document.getElementById('new_group_name').value;
+			let firstday = document.getElementById('firstday');
+
+			if(gr_name.length == 0)
+			{
+				notifier('Введите название группы!', 'red');
+				document.getElementById('new_group_name').style.background = 'linen';
+				return;
+			}
+			else
+			{
+				document.getElementById('new_group_name').style.background = 'white';
+			}
+
+			let gr_type;
+			let selects = document.getElementsByClassName('jm_select');
+			let mas = [];
+			let student_id = document.getElementById('accept').getAttribute('stid');
+
+			if(document.getElementById('new_group_name').disabled == true)
+			{
+				gr_type = 1;
+				if(!firstday.value)
+				{
+					firstday.style.background = 'linen';
+					notifier('Введите день начала занятий!', 'red');
+					return;
+				}
+				else
+				{
+					firstday.style.background = 'white';
+				}
+			}
+			else
+			{
+				gr_type = 0;
+			}
+
+
+			for(let i = 0; i < selects.length; i = i+2)
+			{
+				let nday 	= selects[i].getAttribute('nday');
+				let start 	= selects[i].value;
+				let finish 	= selects[i+1].value;
+				
+				if(start != 'нет') 
+				{
+					mas.push(nday);
+					mas.push(start);
+					mas.push(finish);
+				}
+
+			}
+
+			if(mas.length == 0)
+			{
+				notifier('Назначьте время!', 'red');
+				document.getElementById('grafik').style.background = 'linen';
+				return;
+			}
+			else
+			{
+				document.getElementById('grafik').style.background = 'white';
+			}
+
+			if(mas.length < (lessons/4) * 3)
+			{
+				notifier('Недостаточно слотов времени! Вы не можете принять заявку!', 'red');
+				document.getElementById('grafik').style.background = 'linen';
+				return;
+			}
+			else
+			{
+				document.getElementById('grafik').style.background = 'white';
+			}
+
+			let params = 'method=TAKE-ON'+
+						'&&student_id=' + student_id +
+						'&&group_name=' + gr_name + 
+						'&&mas=' + mas + 
+						'&&rate=' + current_rate+
+						'&&group_type=' + gr_type +
+						'&&day=' + firstday.value;
+
+			validateAct('Вы уверены что хотите создать такой график?', '/req', params, getResponse);
+		});
+
+// Функция подтверждения действия
+	function validateAct(text, route, params, funct)
+	{
+		document.getElementById('validator').innerHTML =
+			'<h2 id ="validation"></h2>'+
+			'<button id = "validation_escape" class="button cancel">Отмена</button>'+
+			'<button id = "validation_ok" class="button accept">Принять</button>';
+
+		document.querySelector('.background').style.display = 'block';
+		document.getElementById('validation').innerHTML = text;
+
+		document.getElementById('validation_escape').addEventListener('click', ()=>
+		{
+			document.querySelector('.background').style.display = 'none';
+		});
+
+		document.getElementById('validation_ok').addEventListener('click', ()=>
+		{
+			POST(route, params, funct);
+		});
+	}
+
+// Функция отклоняет заявку
+	function rejectReq(e) 
+	{
+		validateAct('Вы действительно хотите отклонить заявку?', '/req', 'method=REJECT&&student_id=' + current_student_id, rejected);
+	}
+
+// Функция принимает ответ при удалении заявки
+	function rejected(req) 
+	{
+		if(req.status == 200)
+		{
+			deleteReq(current_student_id);
+			notifier('Заявка удалена!', 'green');
+			document.querySelector('.background').style.display = 'none';
+			ws.send(JSON.stringify({
+				notice: 6,
+				student: current_student_id,
+				rate: 	current_rate
+			}));
+		}
+		else
+		{
+			console.log(req.response);
+		}
+	}
+
+// Функция удаляет заявку по id студента
+	function deleteReq(id)
+	{
+		let li = reqs.children;
+		for(let i = 0; i<li.length; i++)
+		{
+			if(li[i].id.split('=')[1] == id)
+			{
+				reqs.removeChild(li[i]);
+				if(current_student_id == id)
+				{
+					graph.style.display = 'none';
+					document.querySelector('.back').style.display = 'none';
+					document.getElementById('new_group').style.display = 'none';
+				}
+			}
+		}
+
+		let lit = ones.children;
+		for(let i = 0; i<lit.length; i++)
+		{
+			if(lit[i].id.split('=')[1] == id)
+			{
+				ones.removeChild(lit[i]);
+				if(current_student_id == id)
+				{
+					graph.style.display = 'none';
+					document.querySelector('.back').style.display = 'none';
+					document.getElementById('new_group').style.display = 'none';
+				}
+			}
+		}
+	}
+
+</script>
+</html>

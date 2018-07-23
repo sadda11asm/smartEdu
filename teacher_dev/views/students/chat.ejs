@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SmartChat</title>
+	<meta charset="utf-8">
+	<link rel="icon" type="img/png" href="static/img/logo.png">
+	<link rel="stylesheet" type="text/css" href="static/style/chat.css">
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/p5.js"></script>
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/addons/p5.sound.js"></script> -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/addons/p5.sound.min.js"></script>
+
+</head>
+<body>
+	<% include ../partial/header %>
+	<div class="wrapper">
+		<% include ../partial/menu %>
+		<div class = 'chat_container'>
+			<!-- <button id = 'but'></button> -->
+			<div id = 'contacts' class="contacts">
+			</div>
+			<div id = 'chat' class = 'chat'>
+				<div id = 'msgs' class = 'msgs'>
+					<img src="static/img/logo.png" class="logotip">
+				</div>
+				<div class = 'box'>
+					<div class = 'msg_div'>
+						<textarea id = 'text' class = 'text'></textarea>
+						<img src="static/img/paperclip.png" class  = 'screpka' onclick="document.getElementById('file').click()">
+						<i id="tasker"></i>
+						<img src="static/img/if_Document_928418.png" class="screpka" onclick="TaskEnter()">
+						<input type="file" id = 'file' style="display: none">
+						<img src="static/img/microfon.png" class="microfon" id='microfon'>
+					</div>
+					<div id ='files' class= 'files'>
+					</div>
+					<button id = 'send' class = 'send' onclick = 'sendMes()'>Отправить</button>
+				</div>
+			</div>
+			<div id ='templates' class = 'templates'>
+			</div>
+		</div>
+	</div>
+	<div class = 'popImg'>
+		<div style="position: relative; width: 100%; height: 100%">
+			<div class = 'underPOP'>
+				<img src="/static/img/wclose.png" class = 'wclose' id = 'wclose'>
+				<img id = 'popImg' class="picture" src="static/img/avatar.jpg"> 
+			</div>
+		</div>
+	</div>
+</body>
+<script>
+
+// Глобальные переменные
+	let contacts = document.getElementById('contacts');
+	let current_group = 0;
+	let msgs = document.getElementById('msgs');
+	let files = document.getElementById('files');
+	let file = document.getElementById('file');
+	let templates = document.getElementById('templates');
+	let audio = new Audio();
+	let current_time_td;
+	let current_progress;
+	let current_img;
+
+
+	function appendMsg(data, layout)
+	{
+		removePict();
+		data.is = data.isteacher;
+		switch(Number(data.type))
+		{
+			case 1: addSMS(data, layout); break;
+			case 2: addPicture(data, layout); break;
+			case 3: addAudio(data, layout); break;
+			case 4: addFile(data, layout); break;
+			case 5: addVideo(data, layout); break;
+			default: console.log('Invalid Type'); break;
+		}
+		msgs.scrollTo(0, msgs.scrollHeight);
+	}
+// Движение слайдера!
+	audio.addEventListener('timeupdate', () =>
+		{
+			current_time_td.innerHTML = getTime(audio.currentTime);
+
+			let position = audio.currentTime / audio.duration * 100;
+			current_progress.style.left = position + '%';
+
+			if(audio.currentTime == audio.duration) 	
+			{
+				current_img.src = 'static/img/play.png';
+				current_progress.style.left = '0%';
+			}
+		});
+
+// Функция для получения списка групп
+	function getGroups(req)
+	{
+		let res = JSON.parse(req.response);
+		if(req.status == 200)
+		{
+			let body = res.body;
+			
+			for(let i = 0; i < body.length; i++)
+			{
+				addContact(body[i], contacts);
+			}
+			POST('/chat','method=GET-MISS', getMiss);
+		}
+		else
+		{
+			console.log(res);
+		}
+	}
+
+
+function addContact(data, layout)
+{
+	let div = document.createElement('div');
+	let photo_div = document.createElement('div');
+	let photo = document.createElement('img');
+	let info_div = document.createElement('div');
+	let name = document.createElement('h2');
+	let type = document.createElement('div');
+
+	div.classList.add('contact');
+	photo_div.classList.add('photo_div');
+	photo.classList.add('photo');
+	info_div.classList.add('info_div');
+	name.classList.add('name');
+	type.classList.add('type');
+
+	div.setAttribute('group_id', data.id);
+
+	if(data.type == 0) name.innerHTML = data.name;
+	else name.innerHTML =  deleteSlash(data.name);
+	let group_type;
+	if(data.type == 0) group_type = 'Групповой';
+	else group_type = 'Индивидуальный';
+
+	type.innerHTML = '<p>тип: </p><strong>'+group_type+'</strong>';
+	
+	if(data.type == 0) photo.src = 'static/img/chat.png';
+	else photo.src = 'static/img/individ.png';
+
+	photo_div.appendChild(photo);
+	info_div.appendChild(name);
+	info_div.appendChild(type);
+
+	div.appendChild(photo_div);
+	div.appendChild(info_div);
+
+	div.addEventListener('click', function(e)
+	{	
+		let group_id = data.id;
+		if(group_id != current_group)
+		{
+			audio.pause();
+			deleteMiss(group_id);
+			changeGroup(group_id);
+			POST('/chat', 'method=GET&&group_id=' + group_id, getMes); 
+			POST('/template', 'method=GET-TEMP&&group_id=' + group_id, (req)=>
+				{
+					let res = JSON.parse(req.response);
+					console.log("Ответ с сервера",res);
+					templates.innerHTML = '';
+					if(req.status == 200)
+					{
+						let used = res.used;
+						let body = res.body;
+						for(let i = 0; i<body.length; i++)
+						{
+							let isused = 0;
+							for(let z = 0; z<used.length; z++)
+							{
+								console.log('body',body[i]	)
+								if(body[i].length)
+								if(body[i][0].template == used[z].template)
+								{
+									isused = 1;
+								}
+							}
+							addTemplate(body[i], isused);
+						}
+					}
+				});
+		}
+	});
+	layout.appendChild(div);
+}
+// Функция показывает непрочитанные сообщения
+	function getMiss(req)
+	{
+		let res = JSON.parse(req.response);
+		if(req.status == 200)
+		{
+			let body = res.body;
+			for(let i = 0; i<body.length; i++)
+			{
+				setMiss(body[i].group_id, body[i].count);
+			}
+		}
+	}
+
+// Функция показывает чат
+	function getMes(req)
+	{
+		document.querySelector('.box').style.display = 'block';
+		let res = JSON.parse(req.response);
+		// console.log(res);
+		msgs.innerHTML = '';
+		if(req.status == 200)
+		{	
+			let body = res.body;
+			for(let i = 0; i < body.length; i++) appendMsg(body[i], msgs);
+		}
+		else if(req.status == 202)
+		{
+			let img = document.createElement('img');
+			img.classList.add('logotip');
+			img.style.top = 0;
+			img.src = 'static/img/logo.png';
+			msgs.appendChild(img);
+			// notifier('Сообщений нет!', 'blue');
+		}
+		else
+		{
+			console.log(res);
+		}
+	}
+
+// Функция отправляет сообщение сокетом
+	function sendMes()
+	{
+		let fls = files.children;
+
+		let box = document.getElementById('text');
+		let text = box.value;
+		text = text.trim();
+
+		if(fls.length > 0)
+		{
+			if(fls.length > 1)
+			{
+				ws.send(JSON.stringify({
+					notice: 1,
+					_group: current_group,
+					content: text,
+					type: 1
+				}));
+				text = '';
+			}
+				
+			for(let i = 0; i<fls.length; i++)
+			{
+				let type = fls[i].getAttribute('type');
+				let path = fls[i].getAttribute('path');
+
+				ws.send(JSON.stringify({
+					notice: 1,
+					_group: current_group,
+					content: path,
+					type,
+					title: text
+				}));
+				box.value = '';
+			}
+			files.innerHTML = '';
+
+		}
+		else
+		{
+			if(text.length > 0)
+			{
+				ws.send(JSON.stringify({
+					notice: 1,
+					_group: current_group,
+					content: text,
+					type: 1
+				}));
+				box.value = '';
+			}
+		}
+		msgs.scrollTo(0, msgs.scrollHeight);
+	};
+
+// Функция прикрептяет файл к чату
+	function hangFile(name, type, path)
+	{
+		let div = document.createElement('div');
+		let img = document.createElement('img');
+		let a 	= document.createElement('span');
+		let rem = document.createElement('img');
+
+		div.classList.add('file_block');
+		img.classList.add('file_img');
+		a.classList.add('fname');
+		rem.classList.add('rem_img');
+
+		div.id = makeid();
+		div.setAttribute('type', type);
+		div.setAttribute('path', path)
+		rem.setAttribute('delete', div.id);
+
+		img.src = 'static/img/file.png';
+		rem.src = 'static/img/rem.png';
+		
+		a.title = name;
+
+		if(name.length > 15)
+		{
+			name = name.substr(0,15) + '...';
+		}
+
+		a.innerHTML = name;
+		div.appendChild(img);
+		div.appendChild(a);
+		div.appendChild(rem);
+
+		files.appendChild(div);
+	}
+
+// Скрипт
+	POST('/chat','method=GET-CHAT', getGroups);
+
+// Обработка нажатия Enter в поле text
+	document.getElementById('text').addEventListener('keyup', function(ev) 
+	{
+		if(ev.ctrlKey && ev.keyCode == 13) 
+		{
+			let box = document.getElementById('text'); 
+			box.value = box.value + '\n';
+		}
+		else if(!ev.ctrlKey && ev.key == 'Enter') document.getElementById('send').click();
+	});
+
+
+// Обработка нажания на микрофон
+	document.getElementById('microfon').addEventListener('click', function()
+		{
+		
+		});
+
+// Обработка нажатия на корзину
+	files.addEventListener('click', function(e)
+		{
+			if(e.target.classList.contains('rem_img'))
+			{
+				files.removeChild(document.getElementById(e.target.getAttribute('delete')));
+			}
+		});
+
+// Обработка добавления файла
+	file.addEventListener('change', function(e)
+	{
+		let fl = file.files[0];
+		let type = getFileType(fl);
+
+		sendFile('/tempFile', fl, (response) => 
+		{
+			hangFile( fl.name, type, response);
+		})
+	});
+
+// Обработка нажатия на wclose (закрываем popup с картинкой)
+	document.getElementById('wclose').addEventListener('click', function()
+		{
+			document.querySelector('.popImg').style.display = 'none';
+		});
+
+// Функция удаляет из чата логотип
+	function removePict() 
+	{
+		if(msgs.children[0] && msgs.children[0].classList.contains('logotip'))
+		msgs.innerHTML = '';
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Функция устанавливает количество непрочитанных сообщений
+	function setMiss(id, count)
+	{
+		let children = contacts.children;
+
+		for(let i = 0 ; i < children.length; i++)
+		{
+			if(children[i].getAttribute('group_id') == id)
+			{
+				let div = children[i].querySelector('.info_div');
+				if(!div.querySelector('.missCount'))
+				{
+					let span = document.createElement('span');
+					span.classList.add('missCount');
+					span.innerHTML = count;
+					span.setAttribute('group_id', id);
+					div.appendChild(span);
+				}
+				else
+				{
+					let span = div.querySelector('.missCount');
+					let c = Number(span.innerHTML);
+					span.innerHTML = c + count;
+				}
+			}
+		}
+	}
+
+// Функция удаляет количество непрочитанных сообщений
+	function deleteMiss(id)
+	{
+		let children = contacts.children;
+
+		for(let i = 0 ; i < children.length; i++)
+		{
+			if(children[i].getAttribute('group_id') == id)
+			{
+				let div = children[i].querySelector('.info_div');
+				if(div.querySelector('.missCount'))
+				{
+					let count = div.querySelector('.missCount');
+					div.removeChild(count);
+				}
+			}
+		}
+	}
+
+
+
+
+
+
+//Функция удаляет - в конце названия группы
+	function deleteSlash(name)
+	{
+		let mas = name.split('-');
+		let ans = '';
+		for(let i = 0; i<mas.length-1; i++)
+		{
+			ans+= mas[i];
+		}
+
+		if(ans.length > 0) return ans;
+		else return name;
+	}
+
+// Функци создает шаблон
+	function addTemplate(conts, isused)
+	{
+		console.log( 'this is temp',conts[0]);
+		if (!conts.length) return
+		let template 	= document.createElement('div');
+		template.id 	= 'template='+conts[0].template;
+		let h 			= document.createElement('h4');
+		let pictures 	= document.createElement('div');
+		let audios 		= document.createElement('div');
+		let files 		= document.createElement('div');
+		let videos 		= document.createElement('div');
+
+		template.classList.add('template');
+		pictures.classList.add('content');
+		audios.classList.add('content');
+		files.classList.add('content');
+		videos.classList.add('content');
+
+		for(let i = 0; i<conts.length; i++)
+		{
+			switch(Number(conts[i].type))
+			{
+				case 1: h.innerHTML = conts[i].content; break;
+				case 2: addTempPicture(conts[i].content, pictures); break;
+				case 3: addTempAudio(conts[i].content, audios); break; 
+				case 4: addTempFile(conts[i].content, files); break;
+				case 5: addTempVideo(conts[i].content, videos); break;
+				default:
+				console.log('type = ' + conts[i].type)
+				break;
+			}
+		}
+
+		template.appendChild(h);
+		template.appendChild(pictures);
+		template.appendChild(audios);
+		template.appendChild(files);
+		template.appendChild(videos);
+
+
+		let fresh = document.createElement('img');
+		fresh.classList.add('fresh');
+		fresh.src = 'static/img/fresh.png';
+		fresh.addEventListener('click',()=>
+		{
+			template.classList.remove('isused');
+		});
+		template.appendChild(fresh);
+
+		template.addEventListener('dblclick', (e)=>
+		{
+			if(!template.classList.contains('isused'))
+			{
+				let text = template.querySelector('h4').innerHTML;
+				document.getElementById('text').value += text;
+
+				let pictures = template.getElementsByClassName('temp_image');
+				for(let i = 0; i<pictures.length; i++) 
+				{
+					let name = pictures[i].src.split('/');
+					name = name[name.length-1];
+					hangFile( name, 1, pictures[i].src);
+				}
+
+				let audios = template.getElementsByClassName('temp_audio');
+				for(let i = 0; i<audios.length; i++) 
+				{
+					let name = audios[i].getAttribute('target').split('/');
+					name = name[name.length-1];
+					hangFile( name, 2, audios[i].getAttribute('target'));
+				}
+
+				let files = template.getElementsByClassName('temp_file');
+				for(let i = 0; i<files.length; i++) 
+				{
+					let name = files[i].getAttribute('target').split('/');
+					name = name[name.length-1];
+					hangFile( name, 3, files[i].getAttribute('target'));
+				}
+				
+				let videos = template.getElementsByClassName('temp_video');
+				for(let i = 0; i<videos.length; i++)
+				{
+					let name = videos[i].src.split('/');
+					name = name[name.length-1];
+					hangFile( name, 4, videos[i].src);
+				}
+
+		POST("/template", `method=USE&&group_id=${current_group}&&temp_id=${template.id.split("=")[1]}`, 
+					(req)=>
+					{
+						if(req.status == 200)
+						{
+							template.classList.add('isused');
+						}
+					});
+			}
+		});
+	
+		if(isused == 1) template.classList.add('isused');
+		
+
+		templates.appendChild(template);
+	}
+
+// Функция добавляет картинку в шаблон
+	function addTempPicture(content, layout)
+	{
+		let img = document.createElement('img');
+		img.classList.add('temp_image');
+		img.src ="/common/files/"+ content;
+		layout.appendChild(img);
+	}
+
+// Функция добавляет аудио в шаблон
+	function addTempAudio(content, layout)
+	{
+		let block = document.createElement('div');
+		block.classList.add('temp_audio');
+		block.setAttribute('target', content);
+		let img = document.createElement('img');
+		img.classList.add('play_btn');
+		img.src = "static/img/play.png";
+
+		let line = document.createElement('div');
+		line.classList.add('audio_line');
+		line.style.width = '15vh';	
+
+		let progress = document.createElement('div');
+		progress.classList.add('audio_progress');
+
+		line.appendChild(progress);
+
+		let a = document.createElement('a');
+
+
+		line.addEventListener('click', (e)=>
+			{
+				if(!e.target.classList.contains('audio_progress') && progress == current_progress)
+				{
+					let max = line.offsetWidth;
+					let cur = e.offsetX;
+
+					let procent = cur/max;
+
+					let toset = audio.duration * procent;
+					audio.currentTime = toset;
+				}
+			});
+
+		img.addEventListener('click', () => 
+			{
+				let ms = img.src.split('/');
+
+				if(ms[ms.length-1] == 'play.png') 
+				{
+					let buts = document.getElementsByClassName('play_btn');
+					for(let i = 0; i<buts.length; i++)
+					{
+						buts[i].src = 'static/img/play.png';
+					}
+					audio.src ="/common/files/"+content;
+					audio.play(); 
+					img.src = 'static/img/pause.png';
+
+					current_time_td = a;
+					current_progress = progress;
+					current_img = img;
+				}
+				else 
+				{
+					img.src = 'static/img/play.png'
+					audio.pause();
+				}
+			});
+
+
+
+		block.appendChild(img);
+		block.appendChild(line);
+		block.appendChild(a);
+		layout.appendChild(block);
+	}
+
+// Функция добавляет файл в шаблон
+	function addTempFile(content, layout)
+	{
+		let file = document.createElement('div');
+		file.classList.add('temp_file');
+		file.setAttribute('target', content);
+		let img = document.createElement('img');
+		img.src = 'static/img/file.png';
+
+		file.appendChild(img);
+
+		let p = document.createElement('p');
+		let name = content.split('/')
+		name = name[name.length-1];
+		p.title = name;
+		p.innerHTML = name;
+
+		file.appendChild(p);
+
+		file.addEventListener('click', ()=>
+			{
+				window.open("/common/files/"+content, '_blank');
+			});
+
+		layout.appendChild(file);
+	}
+
+// Функция добавляет видео в шаблон
+	function addTempVideo(content, layout)
+	{
+		let video = document.createElement('video');
+		video.controls = 'true';
+		video.classList.add('temp_video');
+		video.src ="/common/files/"+content;
+		layout.appendChild(video);
+	}
+
+// Функция генегирует произвольную строку
+	function makeid() 
+	{
+		var text = "";
+		var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+		for (var i = 0; i < 10; i++)
+			text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+		return text;
+	}
+
+// Функция определяющая тип файла
+	function getFileType(file)
+	{
+		let type = file.type.split('/')[0];
+		switch(type)
+		{
+			case 'image': 	return 2;
+			case 'audio': 	return 3;
+			case 'video': 	return 5;
+			default: 		return 4;
+		}
+	}
+
+
+// Функция возвращает время по секундам
+	function getTime(sec)
+	{
+		let time = '';
+		let min 	= Math.round(sec / 60); 
+		let hour 	= Math.round(min / 60); 
+
+		while(min >= 60)
+		{
+			min -= 60; 
+		}
+
+		sec = Math.round(sec);
+		while(sec >= 60)
+		{
+			sec -= 60;
+		}
+
+		if(hour > 0) time = time + hour + ':';
+
+		if(min > 9) time = time + min + ':';
+		else time = time + '0' + min + ':';
+
+		if(sec > 9) time += sec;
+		else time += '0'+ sec;
+
+		return time;
+	}
+
+// Функция меняет подсветку групп / id - это group_id
+	function changeGroup(id)
+	{
+		current_group = id;
+		let divs = contacts.children;
+		for(let i = 0; i < divs.length; i++)
+		{
+			divs[i].classList.remove('current_contact');
+			if(divs[i].getAttribute('group_id') == id) divs[i].classList.add('current_contact');
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Функция добавляет сообщение в чат
+	function addSMS(data, layout) 
+	{
+		let div = document.createElement('div');
+
+		if(data.is) div.classList.add('right_message');
+		else div.classList.add('left_message');
+
+		div.innerHTML = data.content;
+		let p = document.createElement('p');
+		p.classList.add('student_name');
+		p.innerHTML = data.sender_name;
+		div.appendChild(p);
+		layout.appendChild(div);
+	}
+
+// Функция добавляет картинку в чат
+	function addPicture(data, layout) 
+	{
+		let div = document.createElement('div');
+		if(data.is) div.classList.add('right_message');
+		else div.classList.add('left_message');
+
+		let img = document.createElement('img');
+		img.classList.add('chat_picture');
+		img.src = '/common/files/' + data.content;
+
+		img.addEventListener('click', function() 
+		{
+			document.querySelector('.popImg').style.display = 'block';
+			document.querySelector('#popImg').src = this.src;
+		});
+
+		if(data.title)
+		{
+			let p = document.createElement('p');
+			p.innerHTML = data.title;
+			p.classList.add('fileTitle');
+			div.appendChild(p);
+		}
+
+		div.appendChild(img);
+
+		if(!data.is)
+		{
+			let p = document.createElement('p');
+			p.classList.add('student_name');
+			p.innerHTML = data.sender_name;
+			div.appendChild(p);
+		}
+
+		layout.appendChild(div);
+	}
+
+// Функция добавляет аудио в чат
+	function addAudio(data, layout)
+	{
+		let div = document.createElement('div');
+		if(data.is) div.classList.add('right_message');
+		else div.classList.add('left_message');
+
+		let table 	= document.createElement('table');
+		let tr 		= document.createElement('tr');
+		let pict_td = document.createElement('td');
+		let line_td = document.createElement('td');
+		let time_td = document.createElement('td');
+		let line = document.createElement('div');
+		line.classList.add('audio_line');
+
+		line.addEventListener('click', (e)=>
+			{
+				if(!e.target.classList.contains('audio_progress') && progress == current_progress)
+				{
+					let max = line.offsetWidth;
+					let cur = e.offsetX;
+
+					let procent = cur/max;
+
+					let toset = audio.duration * procent;
+					audio.currentTime = toset;
+				}
+			});
+
+		time_td.innerHTML = '00:00';
+		time_td.classList.add('audio_time');
+
+		let progress = document.createElement('div');
+		progress.classList.add('audio_progress');
+
+		let img = document.createElement('img');
+		img.classList.add('play_btn');
+		img.src = 'static/img/play.png'
+		img.addEventListener('click', () => 
+			{
+				let ms = img.src.split('/');
+
+				if(ms[ms.length-1] == 'play.png') 
+				{
+					let buts = document.getElementsByClassName('play_btn');
+					for(let i = 0; i<buts.length; i++)
+					{
+						buts[i].src = 'static/img/play.png';
+					}
+					audio.src = '/common/files/' + data.content;
+					audio.play(); 
+					img.src = 'static/img/pause.png';
+
+					current_time_td = time_td;
+					current_progress = progress;
+					current_img = img;
+				}
+				else 
+				{
+					img.src = 'static/img/play.png'
+					audio.pause();
+				}
+			});
+
+		line.appendChild(progress);
+		line_td.appendChild(line);
+
+		pict_td.appendChild(img);
+
+		tr.appendChild(pict_td);
+		tr.appendChild(line_td);
+		tr.appendChild(time_td);
+		table.appendChild(tr);
+		if(data.title)
+		{
+			let p = document.createElement('p');
+			p.innerHTML = data.title;
+			p.classList.add('fileTitle');
+			div.appendChild(p);
+		}
+		div.appendChild(table);
+
+		if(!data.is)
+		{
+			let p = document.createElement('p');
+			p.classList.add('student_name');
+			p.innerHTML = data.sender_name;
+			div.appendChild(p);
+		}
+		
+		layout.appendChild(div);
+	}
+
+// Функция добавляет файл в чат
+	function addFile(data, layout)
+	{
+		let div = document.createElement('div');
+		if(data.is) div.classList.add('right_message');
+		else div.classList.add('left_message');
+
+		let file = document.createElement('div');
+
+		let a = document.createElement('a');
+		let img = document.createElement('img');
+		img.src = 'static/img/download.ico';
+		img.classList.add('download_file');
+		a.href = '/common/files/' + data.content;
+		a.classList.add('file_href');
+		a.target = '_blank';
+		a.appendChild(img);
+
+		let filename = document.createElement('span');
+		filename.classList.add('filename');
+		let file_name = data.content;
+
+		if(file_name.length > 7)
+		{
+			file_name = file_name.substr(0,10) + '...';
+		}
+		filename.innerHTML = file_name;
+		filename.title = data.content
+		a.appendChild(filename);
+
+		file.appendChild(a);
+		if(data.title)
+		{
+			let p = document.createElement('p');
+			p.innerHTML = data.title;
+			p.classList.add('fileTitle');
+			div.appendChild(p);
+		}
+		div.appendChild(file);
+
+		if(!data.is)
+		{
+			let p = document.createElement('p');
+			p.classList.add('student_name');
+			p.innerHTML = data.sender_name;
+			div.appendChild(p);
+		}
+
+		layout.appendChild(div);
+	}
+
+// Функция добавляет видео в чат
+	function addVideo(data, layout)
+	{
+		let div = document.createElement('div');
+		if(data.is) div.classList.add('right_message');
+		else div.classList.add('left_message');
+
+		let video = document.createElement('video');
+		video.classList.add('chat_video');
+		video.controls = 'true';
+		video.src = '/common/files/' + data.content;
+		if(data.title)
+		{
+			let p = document.createElement('p');
+			p.innerHTML = data.title;
+			p.classList.add('fileTitle');
+			div.appendChild(p);
+		}
+		div.appendChild(video);
+
+		if(!data.is)
+		{
+			let p = document.createElement('p');
+			p.classList.add('student_name');
+			p.innerHTML = data.sender_name;
+			div.appendChild(p);
+		}
+
+		layout.appendChild(div);
+	}
+
+	//Отправка тесты и домашки
+	function TaskEnter(){
+		popup = document.createElement('div');
+		popupHomework = [
+			{
+				id: 1,
+				body: [{
+						content: 'blabla',
+						type: 1
+					},
+					{
+						content: 'icon.png',
+						type: 2
+					}
+				]
+			},
+			{
+				id: 2,
+				body: [{
+						content: 'fasdf.mp3',
+						type: 3
+					},
+					{
+						content: 'blah',
+						type: 1
+					}
+				]
+			}];
+
+
+		 popupTests = [
+			{
+				id: 10,
+				name: 'name',
+				level: 'level_name'
+			},
+			{
+				id: 1,
+				name: "dsa",
+
+			}
+		];
+		popup.classList.add("popupWindow");
+		popup.innerHTML = 
+		`
+		<button class="popupButton" onclick="buttonTest()">Тесты</button>
+		<button class="popupButton" onclick="buttonHW()">Домашнее задание</button>
+		`;
+
+
+		document.getElementById('tasker').appendChild(popup);
+
+		/*ВЫбрать
+		{
+			_group: current_group,
+			id: 10,
+			method: 'SENDTEST' / 'SENDHOMEWORK'
+		}*/	
+
+	}
+
+	function buttonTest(){
+			popup.innerHTML=``;
+			for (var i = 0; i < popupTests.length; i++) {
+				popup.innerHTML +=
+				`
+				<div class="Test1">${popupTests[i].name}<p>${popupTests[i].level}</div>
+				`
+			}
+		}
+
+	function buttonHW(){
+			popup.innerHTML=``;
+			for (var i = 0; i < popupHomework.length; i++) {
+				popup.innerHTML +=
+				`
+				<div class="HW1">${popupHomework[i].body[i].content}</div>
+				`
+			}
+		}	
+</script>
+</html>

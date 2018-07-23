@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SmartChat</title>
+	<meta charset="utf-8">
+	<link rel="icon" type="img/png" href="static/img/logo.png">
+	<link rel="stylesheet" type="text/css" href="static/style/redact.css">
+</head>
+<body>
+	<% include ../partial/header %>
+	<div class="wrapper">
+		<% include ../partial/menu %>
+		<h3 id = 'err' style="position: absolute; margin-left: 120vh;"></h3>
+		<div class="profile container">
+			<div class="profile_user_ava">
+				<img class = 'profile_photo' id = 'ava' src="static/img/avatar.jpg">
+				<input type="file" name="" id ='newPhoto' style="display: none;">
+			</div>
+			<label for='login'>Имя</label>
+			<input class="edit_input" type="text" name="" id = 'login'>
+			<label for='lastname'>Фамилия</label>
+			<input class="edit_input" type="text" name="" id = 'lastname'>
+			<label for='phone'>Телефон</label>
+			<input class="edit_input" type="text" name="" id = 'phone'>
+			<button class="edit_btn" id = 'edit_info'>Изменить</button>
+		</div>
+		<div class="edit_profile container">	
+			<label for="username">Старый пароль</label>
+			<input class="edit_input" type="password" name="" id="oldpass" autocomplete="off">
+			<label for="pass">Новый пароль</label>
+			<input class="edit_input" type="password" name="" id="pass" autocomplete="off">
+			<label for="Repass">Повторите пароль</label>
+			<input class="edit_input" type="password" name="" id="Repass" autocomplete="off">
+			<button class="edit_btn" id = 'edit_pass'>Изменить</button>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+// Функция для удаления пробелов
+    function noplace(str)
+    {
+        let VRegExp = new RegExp(/^[ ]+/g);
+        let VResult = str.replace(VRegExp, '');
+        return VResult;
+    };
+// Проверка информации о пользователе
+	function validation1()
+	{		
+		let login = document.getElementById('login').value;
+		let lastname = document.getElementById('lastname').value;
+		var phone = document.getElementById('phone').value;
+
+		document.getElementById('login').style.background = 'white';
+		document.getElementById('lastname').style.background = 'white';
+		document.getElementById('phone').style.background = 'white';
+
+		if( noplace(login) == '')
+		{
+			notifier('Введите имя!', 'red');
+			document.getElementById('login').style.background = 'linen';
+			return false;
+		}
+
+		if( noplace(lastname) == '')
+		{
+			notifier('Введите фамилию!', 'red');
+			document.getElementById('lastname').style.background = 'linen';
+			return false;
+		}
+
+		if(phone.length<11)
+		{
+			notifier('Телефон должен содержить 11 цифр!!!','red');
+			document.getElementById('phone').style.background = 'linen';
+			return false;
+		}
+		return true;
+	}
+// Проверка паролей	
+	function validation2(){
+			var pass = document.getElementById('pass').value;
+			var repass = document.getElementById('Repass').value;
+			let oldpass = document.getElementById('oldpass');
+
+			document.getElementById('pass').style.background = 'white';
+			document.getElementById('Repass').style.background = 'white';
+			oldpass.style.background = 'white';
+
+			if(oldpass.value.length == 0)
+			{
+				notifier('Введите старый пароль!','red');
+				oldpass.style.background = 'linen';
+				return false;
+			}
+
+			if(pass != repass){
+				notifier('Пароли не совпадают','red');
+				document.getElementById('Repass').style.background = 'linen';
+				return false;
+			}
+			if(pass.length<6){
+				notifier('Пароль должен содержать минимум 6 цифр','red');
+				document.getElementById('pass').style.background = 'linen';
+				return false;
+			}
+			return true;			
+		}
+// Получение данных о пользователе
+	function getInfo(req)
+	{
+		if(req.status == 200)
+		{
+			let res = JSON.parse(req.response);
+			let body = res.body;
+
+			document.getElementById('ava').src          = body.ava? 'static/profilePictures/' + body.ava : 'static/img/avatar.jpg';
+			document.getElementById('login').value 		= body.firstname;
+			document.getElementById('lastname').value	= body.lastname;
+			document.getElementById('phone').value 		= body.phone;
+		}
+	}
+// Скрипт
+	POST('/teacher', 'method=INFO', getInfo);
+
+// Изменяем свои данные
+	document.getElementById('edit_info').addEventListener('click', function(ev)
+	{
+		if(validation1())
+		{
+			let login 	= document.getElementById('login').value;
+			let lastname	= document.getElementById('lastname').value;
+			let phone 		= document.getElementById('phone').value;
+			POST('/teacher', 'method=PATCH&&login='+ login+'&&lastname='+ lastname+'&&phone='+ phone, (req)=>
+				{
+					if(req.status == 200)
+					{
+						notifier('Данные успешно обновлены!', 'green');
+					}
+					else
+					{
+						notifier('Проблемы с записью данных, попробуйте в другой раз!', 'red');
+					}
+				});
+		}
+	});
+
+// Ответ на изменение пароля
+	function redPass(req)
+	{
+		if(req.status == 200)
+		{
+			let ans = JSON.parse(req.response);
+			let mes = ans.message;
+
+			if(mes == 'ok')
+			{
+				notifier('Пароль успешно изменен!', 'green');
+			}
+			else
+			{
+				notifier(mes, 'red');
+				document.getElementById('oldpass').style.background = 'linen';
+			}
+		}
+	}
+// Изменяем пароль
+	document.getElementById('edit_pass').addEventListener('click', function(ev)
+		{
+			if(validation2())
+			{
+				let oldpass = document.getElementById('oldpass').value;
+				let pass 	= document.getElementById('pass').value;
+				let Repass 	= document.getElementById('Repass').value;
+				POST('/teacher','method=PATCH-PASS&&oldpass='+oldpass+'&&pass='+ pass, redPass);
+			}
+			
+		});
+
+// Ответ на изменение фотки
+	function redPhoto(res)
+	{
+		top.location.href = '/redact';
+	}
+// Меняем фотку
+	document.getElementById('ava').addEventListener('click', function()
+		{
+			document.getElementById('newPhoto').click();
+		});
+	document.getElementById('newPhoto').addEventListener('change', function()
+		{
+			let file = document.getElementById('newPhoto').files[0];
+			sendFile('/uploadPicture', file, redPhoto);
+		});
+</script>
+</html>

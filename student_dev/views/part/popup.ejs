@@ -1,0 +1,28 @@
+<!Doctype html>
+<div class = 'backpop' id = 'backpop'>
+	<div id = 'popup' class = 'popup'></div>
+</div>
+<script type="text/javascript">
+	document.getElementById('backpop').addEventListener('click', (e)=>
+		{
+			if(e.target.classList.contains('backpop'))
+			{
+				closePopup();
+			}
+		});
+
+	function closePopup()
+	{
+		document.getElementById('backpop').style.display = 'none';
+	}
+	function openPopup()
+	{
+		document.getElementById('backpop').style.display = 'block';
+	}
+	function showPopup(script)
+	{
+		document.getElementById('backpop').style.display = 'block';
+		if(script) popup.innerHTML = script;
+		else popup.innerHTML = `<p>Функция showPopup(script) первым параметом принимает скрипт, который окажется во всплывающем окне</p>`;
+	}
+</script>

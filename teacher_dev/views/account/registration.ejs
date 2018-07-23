@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SmartChat</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="static/style/login.css">
+	<link rel="icon" type="img/png" href="static/img/logo.png">
+</head>
+<body>
+	<header class="header">
+		<div class="hamburger"><a href="#">&#9776;</a></div>
+	</header>
+	<div class="wrapper">
+		<div class="login reg">
+			<h1 class="login_title">Регистрация</h1>
+			<h3 class = 'err' id = 'err'></h3>
+			<form>
+				<label for="email">Email</label>
+				<input class="login_input" type="text"  name="" id="email"><span class="err" id="email_err"></span><br>
+				<label for="login">Имя</label>
+				<input class="login_input" type="text" name=""  id="login">
+				<label for="lastname">Фамилия</label>
+				<input class="login_input" type="text" name="" id="lastname">
+				<label for="phone">Телефон</label><br>
+				<span id="code" class="currency">8</span><input class="login_input" type="number" name="" id="phone" maxlength="10"><span class="err" id="phone_err"></span><br>
+				<label for="pass">Пароль</label>
+				<input class="login_input" type="password" name="" autocomplete="off" id="pass"><span class="err" id="pass_err"></span><br>
+				<label for="Cpass">Повторите пароль</label>
+				<input class="login_input" type="password" name="" autocomplete="off" id="Cpass"><span class="err" id="Cpass_err"></span><br>
+				<button class="login_btn" id ='login_btn'>Регистрация</button>
+			</form>
+			<a class = 'link_to_reg' href="/login">У меня есть аккаунт</a>
+		</div>
+	</div>
+	<script type="text/javascript">
+
+/*Валидация*/
+	function Validate()
+	{
+		var r = /^[\w\.\d-_]+@[\w\.\d-_]+\.\w{2,4}$/i;
+
+		let email 		= document.getElementById('email').value;
+		let pass 		= document.getElementById('pass').value;
+		let login 		= document.getElementById('login').value;
+		let lastname 	= document.getElementById('lastname').value;
+		let phone 		= document.getElementById('phone').value;
+		var Cpass = document.getElementById('Cpass').value;
+
+
+		if(document.getElementById('email').classList.contains('color_red'))
+		{
+			document.getElementById('err').innerHTML = 'Пользователь с таким Email уже существует!';
+			return false;
+		}
+
+		if(!r.test(email))
+		{
+			document.getElementById('err').innerHTML = "Введите корректный e-mail адрес";
+			return false;
+		}
+
+		if(login.length == 0)
+		{
+			document.getElementById('err').innerHTML = 'Введите ваше имя!';
+			return false;
+		}
+
+		if(lastname.length == 0)
+		{
+			document.getElementById('err').innerHTML = 'Введите вашу фамилию!';
+			return false;
+		}
+
+		if(phone.length < 10)
+		{
+			document.getElementById('err').innerHTML = "Телефон должен содержать 11 цифр";
+			return false;
+		}
+
+		if(pass != Cpass)
+		{
+			document.getElementById('err').innerHTML = "Пароли не совпадают";
+			return false;
+		}
+
+		if(pass.length < 6)
+		{
+			document.getElementById('err').innerHTML = "Пароль должен содержать не менее 6 символов";
+			return false;
+		}
+
+		return true;
+	}
+
+/*Проверка ЛОГИНА на уникальность*/
+		document.getElementById('email').addEventListener('keyup', function(ev)
+			{
+				if(this.value != '')
+				{
+					let req = new XMLHttpRequest();
+					let target = this;
+					target.classList.remove('color_red');
+					target.classList.remove('color_green');
+					req.onreadystatechange = function()
+					{
+						if(req.readyState == 4)
+						{
+							if(req.status == 200)
+							{
+								target.classList.add('color_green');
+							}
+							else
+							{
+								target.classList.add('color_red');
+							}
+						}
+					}
+					req.open('POST','/account');
+					req.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+					req.send('method=CHECK&&email='+ target.value);
+				}
+			});
+
+/*Отправка инфо на регистрацию*/
+		document.getElementById('login_btn').addEventListener('click', function(event)
+			{
+				document.getElementById('err').innerHTML = "";
+				event.preventDefault();
+
+				let login 		= document.getElementById('login').value;
+				let email 		= document.getElementById('email').value;
+				let pass 		= document.getElementById('pass').value;
+				let lastname 	= document.getElementById('lastname').value;
+				let phone 		= document.getElementById('phone').value;
+
+				let params = 
+					'method=' 		+ 'REG'+
+					'&&login=' 		+ login+
+					'&&email=' 		+ email+
+					'&&pass=' 		+ pass+
+					'&&lastname='	+ lastname+
+					'&&phone=8'	    + phone;
+				 
+				if(Validate())
+				{
+					let req = new XMLHttpRequest();
+					req.onreadystatechange = function()
+					{
+						if(req.readyState == 4)
+						{
+							let res = JSON.parse(req.response);
+							if(req.status == 200)
+							{
+								top.location.href = '/';
+							}
+							else
+							{
+								document.getElementById('err').innerHTML = res.message;
+							}
+						}
+					}
+					req.open('POST','/account');
+					req.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+					req.send(params);
+				}
+			});
+	</script>
+</body>
+</html>

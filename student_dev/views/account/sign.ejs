@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>SmartEDU</title>
+    <link rel="stylesheet" href="/css/vendor/reset.min.css">
+    <link rel='stylesheet' href="/css/vendor/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/authorization.css">
+</head>
+
+<body>
+  <div class="backdrop">
+    <div class="module form-module">
+      <div class="toggle"><i class="fa fa-times fa-pencil"></i>
+        <div class="tooltip" id="tooltip">Регистрация</div>
+      </div>
+      <div class="form show-form" id="login">
+        <h2>Вход</h2>
+        <form>
+          <label class="alert" id = 'signin-err'></label>
+
+          <div class='tel'>
+            <label class="tel__label">+7</label>
+            <input class="tel__input" type="number" placeholder="Телефон" onkeydown ="keyUpTel(event)" id ='signin-tel'/>
+          </div>
+          <input type="password" placeholder="Пароль" id = 'signin-pass'/>
+          <button onclick="login(event)">Войти</button>
+        </form>
+      </div>
+      <div class="form" id="reg">
+        <h2>Регистрация</h2>
+        <form>
+          <label class="alert" id = 'signup-err'></label>
+           <div class='tel'>
+            <label class="tel__label">+7</label>
+            <input class="tel__input" type="number" placeholder="Телефон" onkeydown ="keyUpTel(event)" id ='tel'/>
+          </div>
+          <input type="text" placeholder="Имя" id = 'name'/>
+          <input type="text" placeholder="Фамилия" id = 'lastname'/>
+          <input type="number" placeholder="Возраст" id = 'age'/>
+          <input type="password" placeholder="Пароль" id = 'pass'/>
+          <input type="password" placeholder="Повторите пароль" id = 'repass'/>
+          <button onclick="registrate(event)">Зарегистрироваться</button>
+        </form>
+      </div>
+      <div class="cta" id="cta"><a href="/restore">Забыли пароль?</a></div>
+    </div>
+  </div>
+  <script src="js/common.js"></script>
+  <script src="js/pages/account/sign.js"></script>
+
+</body>
+</html>

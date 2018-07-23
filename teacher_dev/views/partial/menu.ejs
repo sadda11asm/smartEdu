@@ -1,0 +1,135 @@
+<!Doctype html> 
+<div class="left_menu">
+			<div class="nav_menu">
+				<div class="menu_item">Личный кабинет</div>
+				<a href="/profile">
+					<div class="menu_item--desc">
+						<img src="static/img/avatar.svg">
+						<span>Профиль</span>
+					</div>
+				</a>
+				<a href='/graph'>
+					<div class="menu_item--desc">
+						<img src="static/img/calendar.svg">
+						<span>График</span>
+					</div>
+				</a>
+				<a href='/template'>
+					<div class="menu_item--desc">
+						<img src="static/img/layout.svg">
+						<span>Шаблоны</span>
+					</div>
+				</a>
+				<a href='/schedule'>
+					<div class="menu_item--desc">
+						<img src="static/img/schedule.svg">
+						<span>Расписание</span>
+					</div>
+				</a>
+			</div>
+
+			<div class="nav_menu">
+				<div class="menu_item">Ученики</div>
+				<a href="/student">
+				<div class="menu_item--desc">
+					<img src="static/img/stud.svg">
+					<span>Студенты</span>
+				</div>
+				</a>
+				<a href="/group">
+				<div class="menu_item--desc">
+					<img src="static/img/users.svg">
+					<span>Группы</span>
+				</div>
+				</a>
+				<a href='chat'>
+					<div class="menu_item--desc">
+						<img src="static/img/speech-bubble.svg">
+						<span>Чат</span>
+					</div>
+				</a>
+				<a href="/requests">
+					<div class="menu_item--desc">
+						<img src="static/img/plus.png">
+						<span>Заявки</span>
+					</div>
+				</a>
+			</div>
+			<div class="nav_menu">
+				<div class="menu_item">Тесты</div>
+				<a href="/test">
+					<div class="menu_item--desc">
+						<img src="static/img/briefcase.svg">
+						<span>Список тестов</span>
+					</div>
+				</a>
+				<a href="/result">
+					<div class="menu_item--desc">
+						<img src="static/img/users.svg">
+						<span>Результаты</span>
+					</div>
+				</a>
+			</div>
+			<div class="nav_menu">
+				<div class="menu_item"></div>
+				<div id = 'exit' class="menu_item--desc">
+					<img src="static/img/exit.svg">
+					<span>Выйти</span>
+				</div>
+			</div>
+		</div>
+		<script>
+
+			function getCookie(name)
+			{
+				return document.cookie.split(name+'=')[1].split(';')[0];
+			}
+
+			function setCookie(name, value, options) 
+			{
+				options = options || {};
+
+				var expires = options.expires;
+
+				if (typeof expires == "number" && expires) 
+				{
+					var d = new Date();
+					d.setTime(d.getTime() + expires * 1000);
+					expires = options.expires = d;
+				}
+				if (expires && expires.toUTCString) 
+				{
+					options.expires = expires.toUTCString();
+				}
+
+				value = encodeURIComponent(value);
+
+				var updatedCookie = name + "=" + value;
+
+				for (var propName in options) 
+				{
+					updatedCookie += "; " + propName;
+					var propValue = options[propName];
+					if (propValue !== true) 
+					{
+						updatedCookie += "=" + propValue;
+					}
+				}
+
+				document.cookie = updatedCookie;
+			}
+
+			function deleteCookie(name) 
+			{
+				setCookie(name, "", 
+				{
+					expires: -1
+				});
+			}
+			document.getElementById('exit').addEventListener('click', function()
+				{
+					deleteCookie('SAI');
+					deleteCookie('SAT');
+					top.location.href = '/';
+				});
+		</script>

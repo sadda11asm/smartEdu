@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html>
+<head id= 'head'>
+	<title>SmartChat</title>
+	<meta charset="utf-8">
+	<link rel="icon" type="img/png" href="static/img/logo.png">
+</head>
+<body>
+	<% include ../partial/header %>
+	<div class="wrapper">
+		<% include ../partial/menu %>
+		<div class = 'container' id="container">
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+
+// Удаление стилей
+	function deleteStyle() 
+	{
+		let head = document.getElementById('head')
+		let children = head.children;
+
+		for(let i = 0; i<children.length; i++)
+		{
+			if(children[i].getAttribute('type') == 'text/css') 
+				head.removeChild(children[i]);
+		}
+	}
+// Добавление стилей
+	function setStyle(path) 
+	{
+		deleteStyle();
+		let link = document.createElement('link');
+		link.rel = "stylesheet";
+		link.type = "text/css";
+		link.href = path;
+		document.getElementById('head').appendChild(link);
+	}
+//Функция выводит дату в консоль в формате дд-мм-гг
+	function log(date)
+	{
+		let month = date.getMonth() + 1;
+		console.log(date.getDate() + '.' + month + '.' + date.getFullYear() + ' ' + date.getHours()  + ':' + date.getMinutes());
+	}
+
+// Глобальные переменные
+	let menu = false;
+	let cont = document.getElementById('container');
+	let test_id = 0;
+
+// Скрипт
+	getTestsLayout();
+
+// Функция возвращает символ 
+	function getChar(i) 
+	{
+		switch(i)
+		{
+			case 1: return 'a';
+			case 2: return 'b';
+			case 3: return 'c';
+			case 4: return 'd';
+			case 5: return 'e';
+			case 6: return 'f';
+			case 7: return 'g';
+			case 8: return 'h';
+			case 9: return 'i';
+			case 10: return 'j';
+			case 11: return 'k';
+			case 12: return 'l';
+			case 13: return 'm';
+			case 14: return 'n';
+			case 15: return 'o';
+			case 16: return 'p';
+			case 17: return 'q';
+			case 18: return 'r';
+			case 19: return 's';
+			case 20: return 't';
+			case 21: return 'u';
+			case 22: return 'v';
+			case 23: return 'w';
+			case 24: return 'x';
+			case 25: return 'y';
+			default: return 'z';
+		}
+	}
+
+// Функция возвращает номер символа 
+	function getInt(i) 
+	{
+		switch(i)
+		{
+			case 'a': return 1;
+			case 'b': return 2;
+			case 'c': return 3;
+			case 'd': return 4;
+			case 'e': return 5;
+			case 'f': return 6;
+			case 'g': return 7;
+			case 'h': return 8;
+			case 'i': return 9;
+			case 'j': return 10;
+			case 'k': return 11;
+			case 'l': return 12;
+			case 'm': return 13;
+			case 'n': return 14;
+			case 'o': return 15;
+			case 'p': return 16;
+			case 'q': return 17;
+			case 'r': return 18;
+			case 's': return 19;
+			case 't': return 20;
+			case 'u': return 21;
+			case 'v': return 22;
+			case 'w': return 23;
+			case 'x': return 24;
+			case 'y': return 25;
+			default : return 0;
+		}
+	}
+
+// Функция создает тест
+	function createTest()
+	{	
+		let lvl = '';
+		let name = '';
+
+		let testObj = {};
+		testObj.body = {};
+		testObj.body.body = [];
+
+		let level_el = document.getElementById('lvl')
+		if(!level_el.getAttribute('lvl_id'))
+		{
+			level_el.style.color = 'red';
+			notifier('Выберите уровень!', 'red');
+			return;
+		}
+		else
+		{
+			level_el.style.color = 'black';
+		}
+
+		lvl = level_el.getAttribute('lvl_id');
+		name = document.getElementById('test_name').value;
+
+		testObj.lvl_id = lvl;
+		testObj.test_name = name;
+
+		if(name.length < 1)
+		{
+			document.getElementById('test_name').style.background = 'linen';
+			notifier('Введите имя теста!', 'red');
+			return;
+		}
+		else
+		{
+			document.getElementById('test_name').style.background = 'transparent';
+		}
+
+		let questions = document.getElementById('questions');
+		if(questions.children.length == 0)
+		{
+			notifier('Создайте вопрос', 'red');
+		}
+
+		let children = questions.children;
+
+		if(children.length < 2)
+		{
+			notifier('В тесте может быть минимум 2 вопроса!', 'red');
+			return;
+		}
+		for(let i = 0; i<children.length; i++)
+		{
+
+			let internalBodyObject = {};
+
+			let question = children[i];
+
+			let left = question.children[0];
+
+			let quest = left.children[1].value;
+			if(quest.length < 1) 
+			{
+				left.children[1].style.background = 'linen';
+				notifier('Введите вопрос!', 'red');
+				return;
+			}
+			else
+			{
+
+				internalBodyObject.question = quest;
+
+				left.children[1].style.background = 'transparent';
+			}
+
+			let weight = left.children[2].value;
+
+			if(weight < 1) 
+			{
+				left.children[2].style.background = 'linen';
+				notifier('Введите вес вопроса!', 'red');
+				return;
+			}
+			else
+			{
+
+				internalBodyObject.weight = parseInt(weight,10);
+
+				left.children[2].style.background = 'transparent';
+			}
+
+			let right = question.children[1];
+
+			let answers = right.children[1].children;
+			//aisultan
+			internalBodyObject.answers = [];
+			for(let j = 0; j<answers.length; j++)
+			{
+				let input = answers[j].children[0];
+				let val = input.value;
+				if(val < 1)
+				{
+					input.style.background = 'linen';
+					notifier('Введите ответ!', 'red');
+					return;
+				}
+				else
+				{
+					input.style.background = 'transparent';
+
+					internalBodyObject.answers.push(val);
+
+				}
+			}
+			let ok = false;
+			let variants = right.children[0].children;
+			for(let j = 0; j<variants.length; j++)
+			{
+				let img = variants[j].children[0];
+				let ii = img.src.split('/');
+				if(ii[ii.length-1] == 'chosen.svg')
+				{
+
+					internalBodyObject.correct = j;
+
+					ok = true;
+				}
+			}
+
+			if(!ok)
+			{
+				notifier('Выберите правильный ответ!', 'red');
+				right.children[0].style.background = 'linen';
+				return;
+			}
+			else
+			{
+				right.children[0].style.background = 'transparent';
+			}
+			
+			testObj.body.body.push(internalBodyObject);
+			
+		}
+
+		testObj.body.body = JSON.stringify(testObj.body.body);
+
+		POST('/test', 'method=POST&&name='+testObj.test_name+'&&lvl='+testObj.lvl_id+'&&body='+testObj.body.body + '&&test_id='+test_id, (req)=>
+			{
+				if(req.status == 200)
+				{
+					notifier('Тест успешно сохранен!', 'green');
+					getTestsLayout();
+				}
+				else
+				{
+					let res = JSON.parse(req.response);
+				}
+			});
+	}
+
+// Функция открывает страницу создать тест
+	function getCreateLayout(id)
+	{
+		if(id) test_id = id;
+
+		setStyle('static/style/test_create.css');
+		cont.innerHTML = '<div class = "top">'+
+				'<div id = "lvl" class = "lvl"><h4 id = "lvl_name">Выберите уровень</h4><img src="static/img/right.svg" class="strelka"></div>'+
+				'<div class = "lvls" id = "lvls" style="display: none;"></div>'+
+				'<div id = "lvl" class = "lvl"><h4 id = "lvl_name">Выберите уровень</h4><img src="static/img/right.svg" class="strelka"></div>'+
+				'<div class = "lvls" id = "lvls" style="display: none;"></div>'+
+				'<input type="text" id = "test_name" class="test_name input" placeholder = "Название теста">'+
+				'<img src="static/img/blue_plus.png" id = "blue_plus" class = "blue_plus">'+
+				'<img src="static/img/complete.png" class = "complete_btn">'+
+				'<img src="static/img/close.png" class = "close_btn">'+
+				'</div>'+
+				'<div class="questions" id = "questions"></div>';
+
+		document.getElementById('lvl').addEventListener('click', ()=>
+		{
+			if(lvls.style.display == 'none') lvls.style.display = 'block';
+			else lvls.style.display = 'none';
+			getLevels();
+		});
+
+		// Добавляем вопрос нажатием на +
+		document.getElementById('blue_plus').addEventListener('click', ()=>
+			{
+				let n = document.getElementById('questions').children.length;
+				addQuest(n+1)
+			});
+		// Закрываем создание вопроса
+		document.querySelector('.close_btn').addEventListener('click', ()=>
+			{
+				if(confirm('Вы уверены, что хотите закрыть эту страницу?'))
+				getTestsLayout();
+			});
+
+		//Создаем тест
+		document.querySelector('.complete_btn').addEventListener('click', ()=>
+			{
+				createTest();
+			});
+
+		if(id)
+		{
+			POST('/test', 'method=GET&&test_id=' + id, (req)=>
+			{
+				let res = JSON.parse(req.response);
+
+				let body = res.body[0];
+
+				let questions = JSON.parse(body.body);
+				
+				document.getElementById('lvl_name').innerHTML = body.lvl_name;
+				document.getElementById('lvl').setAttribute('lvl_id', body.lvl_id);
+				document.getElementById('test_name').value = body.test_name;
+
+				for(let i = 0; i<questions.length; i++)
+
+				addQuest(i+1, questions[i].question, questions[i].weight, questions[i].answers, questions[i].correct); 
+			});
+		}
+		else
+		{
+			addQuest(1); 
+			addQuest(2);
+		}
+	};
+
+// Функция открывает страницу "тесты"
+	function getTestsLayout()
+	{
+		setStyle('static/style/test.css');
+
+		cont.innerHTML =
+			"<img src='static/img/blue_plus.png' class = 'blue_plus'>"+
+			"<div class = 'top'>"+
+				"<div class = 'topName'>"+
+					"<h4 class = 'margin-left'>Название теста</h4>"+
+				"</div>"+
+				"<div class = 'topLvl'>"+
+					"<h4>Уровень</h4>"+
+				"</div>"+
+				"<div class = 'topDate'>"+
+					"<h4>Дата</h4>"+
+				"</div>"+
+			"</div>"+
+			"<div id = 'tests' class = 'tests'></div>";
+		POST('/test', 'method=GET', (req)=>
+			{
+				let res = JSON.parse(req.response);
+				if(req.status == 200)
+				{
+					let test = res.body;
+					for(let i=0; i<test.length; i++)
+					{
+						addTest(test[i].test_id, test[i].test_name, test[i].lvl_name, test[i].dt);
+					}
+					if(test.length > 9) document.querySelector('.top').style.paddingRight = '1vh';
+				}
+			});
+
+		document.querySelector('.blue_plus').addEventListener('click', (e)=> 
+			{
+				getCreateLayout();
+				test_id = 0;
+			});
+	}
+
+// Функция открывает меню
+	function showMenu(id)
+	{
+		document.getElementById('menu=' + id).style.display = 'block';
+	}
+
+// Функция скрывает меню
+	function hideMenu()
+	{
+		let m = document.getElementsByClassName('test_menu');
+		for(let i = 0; i<m.length; i++)
+		{
+			m[i].style.display = 'none';
+		}
+	}
+
+// Функция добавляет тест
+	function addTest(id, name, level, date)
+	{
+		let tests = document.getElementById('tests');
+
+		let test = document.createElement('div');
+		test.classList.add('test');
+		test.id = 'test=' + id;
+
+		let testName = document.createElement('div');
+		testName.classList.add('testName');
+		testName.classList.add('line');
+
+		let points = document.createElement('img');
+		points.id = 'points=' + id;
+		points.classList.add('points');
+		points.src = 'static/img/points.png';
+		points.addEventListener('mouseover', (e)=>
+			{
+				showMenu(id);
+			});
+
+		testName.appendChild(points);
+
+		let test_name = document.createElement('h4');
+		test_name.innerHTML = name;
+		testName.appendChild(test_name);
+
+		let menu = document.createElement('div');
+		menu.id = 'menu=' + id;
+		menu.classList.add('test_menu');
+
+		menu.addEventListener('mouseleave', (e)=>
+			{
+				hideMenu();
+			});
+
+		let redact = document.createElement('div');
+		redact.id = 'redact=' + id;
+		redact.classList.add('but');
+
+		let red_im = document.createElement('img');
+		red_im.classList.add('menu_img');
+		red_im.src = 'static/img/pencil1.svg';
+		redact.appendChild(red_im);
+
+		let red_title = document.createElement('a');
+		red_title.classList.add('menu_title');
+		red_title.innerHTML = 'Редактировать';
+		redact.appendChild(red_title);
+
+		redact.addEventListener('click', (ev)=>
+			{
+				getCreateLayout(id);
+			});
+
+		let del = document.createElement('div');
+		del.id = 'del=' + id;
+		del.classList.add('but');
+
+		let del_im = document.createElement('img');
+		del_im.classList.add('menu_img');
+		del_im.src = 'static/img/rem.png';
+		del.appendChild(del_im);
+
+		let del_title = document.createElement('a');
+		del_title.classList.add('menu_title');
+		del_title.innerHTML = 'Удалить';
+		del.appendChild(del_title);
+
+		del.addEventListener('click', ()=>
+			{
+				if(confirm('Вы хотите удалить тест?'))
+				{
+					POST('/test', 'method=DELETE&&test_id=' + id, (req)=>
+						{
+							if(req.status == 200)
+							{
+								deleteTest(id);
+							}
+						});
+				}
+			});
+
+		menu.appendChild(redact);
+		menu.appendChild(del);
+		testName.appendChild(menu);
+
+		let testLvl = document.createElement('div');
+		testLvl.classList.add('testLvl');
+		testLvl.classList.add('line');
+		testLvl.innerHTML = "<h4>"+level+"</h4>";
+
+		let testDate = document.createElement('div');
+		testDate.classList.add('testDate');
+		testDate.classList.add('line');
+		testDate.innerHTML = "<h4>"+getDateName(date)+"</h4>";
+
+		test.appendChild(testName);
+		test.appendChild(testLvl);
+		test.appendChild(testDate);
+
+		tests.appendChild(test);
+	}
+
+// Функция удаляет тест
+	function deleteTest(id)
+	{
+		let tests = document.getElementById('tests');
+		tests.removeChild(document.getElementById('test='+id));
+	}
+
+// Функция возвращает время 
+	function getDateName(d)
+	{
+		let now = new Date();
+		let date = new Date(d);
+
+		let m = date.getMonth() + 1;
+		let string = date.getDate() + "." + m + "." + date.getFullYear();
+
+		if(now.getFullYear() == date.getFullYear() && now.getMonth() == date.getMonth())
+		{
+			if(now.getDate() == date.getDate())
+			{
+				if(date.getHours() == now.getHours())
+				{
+					if(date.getMinutes() == now.getMinutes())
+					{
+						return 'только что';
+					}
+					else
+					{
+						let difference = now.getMinutes() - date.getMinutes();
+						if(difference < 2) return 'минуту назад';
+						else if(difference > 1 && difference < 5) return  difference + ' минуты назад';
+						else if(difference > 4 && difference <21) return difference + ' минут назад';
+						else if(difference >20)
+						{
+							if(difference%10 < 5 && difference%10 != 0)
+							{
+								if(difference%10 == 1) return  difference + ' минуту назад';
+								else return difference + ' минуты назад';
+							}
+							else
+							{
+								return difference + ' минут назад';
+							}
+						}
+					}
+				}
+				else
+				{
+					let difference = now.getHours() - date.getHours();
+					if(difference == 1)
+					{
+						return 'час назад';
+					}
+					else if(difference > 1 && difference < 5)
+					{
+						return difference + ' часа назад';
+					}
+					else if(difference >= 5 && difference < 21)
+					{
+						return difference + ' часов назад';
+					}
+					else if(difference==21)
+					{
+						return difference + ' час назад';
+					}
+					else if(difference > 21)
+					{
+						return difference + ' часа назад';
+					}
+				}
+			}
+			else
+			{
+				let difference = now.getDate() - date.getDate();
+
+				if(difference <= 3) 
+				{
+					if(difference == 1)
+					{
+						return 'вчера';
+					}
+					else
+					{
+						return difference + ' дня назад';
+					}
+				}
+				else
+				{
+					return string;
+				}
+
+			}
+		}
+		else
+		{
+			return string;
+		}
+	}
+
+// Функция достает уровни
+	function getLevels()
+	{
+		let lvl_name = document.getElementById('lvl_name');
+		let lvl = document.getElementById('lvl');
+		let lvls = document.getElementById('lvls');
+		POST('/level', 'method=GET', (req)=>
+			{
+				lvls.innerHTML = '';
+				let res = JSON.parse(req.response);
+				if(req.status == 200)
+				{
+					let body = res.body;
+					for(let i = 0; i<body.length - 1; i++)
+					{
+						let div = document.createElement('div');
+						div.id = body[i].lvl_id;
+						div.innerHTML = body[i].lvl_name;
+						div.classList.add('lvl_name');
+
+						div.addEventListener('click', (e) => 
+						{
+							lvls.style.display = 'none';
+							lvl.innerHTML = "<h4 id = 'lvl_name'>"+e.target.innerHTML+"</h4><img src='static/img/right.svg' class='strelka'>";
+							lvl.setAttribute('lvl_id', e.target.id);
+						});
+
+						lvls.appendChild(div);
+					}
+				}
+				else if(req.status == 202)
+				{
+					notifier('Ни одного уровня нет', 'red');
+				}
+				else
+				{
+					console.log(res);
+				}
+			});
+	};
+
+	// function getRate()
+	// {
+	// 	let rate_name = document.getElementById('lvl_name');
+	// 	let rate = document.getElementById('lvl');
+	// 	let rates = document.getElementById('lvls');
+	// 	POST('/level', 'method=GET', (req)=>
+	// 		{
+	// 			lvls.innerHTML = '';
+	// 			let res = JSON.parse(req.response);
+	// 			if(req.status == 200)
+	// 			{
+	// 				let body = res.body;
+	// 				for(let i = 0; i<body.length - 1; i++)
+	// 				{
+	// 					let div = document.createElement('div');
+	// 					div.id = body[i].lvl_id;
+	// 					div.innerHTML = body[i].lvl_name;
+	// 					div.classList.add('lvl_name');
+
+	// 					div.addEventListener('click', (e) => 
+	// 					{
+	// 						lvls.style.display = 'none';
+	// 						lvl.innerHTML = "<h4 id = 'lvl_name'>"+e.target.innerHTML+"</h4><img src='static/img/right.svg' class='strelka'>";
+	// 						lvl.setAttribute('lvl_id', e.target.id);
+	// 					});
+
+	// 					lvls.appendChild(div);
+	// 				}
+	// 			}
+	// 			else if(req.status == 202)
+	// 			{
+	// 				notifier('Ни одного уровня нет', 'red');
+	// 			}
+	// 			else
+	// 			{
+	// 				console.log(res);
+	// 			}
+	// 		});
+	// };
+
+// Функция создает вопрос
+	function addQuest(i, q_title, q_weight, q_variants, q_correct) 
+	{
+		let questions = document.getElementById('questions');
+
+		let test_block = document.createElement('div');
+		test_block.classList.add('test_block');
+
+		let left_block = document.createElement('div');
+		left_block.classList.add('left_block');
+
+		let a = document.createElement('a');
+		a.classList.add('numer');
+		a.innerHTML = i + '.';
+
+		let quest_name = document.createElement('input');
+		quest_name.classList.add('quest_name');
+		quest_name.classList.add('input');
+		quest_name.placeholder = 'Вопрос';
+		quest_name.type = 'text';
+
+		if(q_title) quest_name.value = q_title;
+
+		let quest_weight = document.createElement('input');
+		quest_weight.classList.add('quest_weight');
+		quest_weight.classList.add('input');
+		quest_weight.placeholder = 'Вес вопроса';
+		quest_weight.type = 'number';
+
+		if(q_weight) quest_weight.value = q_weight;
+
+		left_block.appendChild(a);
+		left_block.appendChild(quest_name);
+		left_block.appendChild(quest_weight);
+
+		let answers_block = document.createElement('div');
+		answers_block.classList.add('answers_block');
+
+		let variants = document.createElement('div');
+		variants.classList.add('variants');
+
+		let answers = document.createElement('div');
+		answers.classList.add('answers');
+
+		answers_block.appendChild(variants);
+		answers_block.appendChild(answers);
+
+		test_block.appendChild(left_block);
+		test_block.appendChild(answers_block);
+		test_block.id = 'q=' + i;
+		questions.appendChild(test_block);
+
+		if(q_variants)
+		{
+			let variant = q_variants
+			for(let j = 0; j<variant.length; j++)
+			{
+				addAns(answers_block, variant[j], q_correct)
+			}
+		}
+		else
+		{
+			addAns(answers_block);
+			addAns(answers_block);
+		}
+	}
+
+// Функция добавляет еще один ответ в блок
+	function addAns(answers_block, q_variant, q_correct)
+	{	
+		let parent = answers_block.parentNode;
+		let id = parent.id;
+		let answers = answers_block.children[1];
+		let variants = answers_block.children[0];
+
+		let div = document.createElement('div');
+		div.classList.add('ans');
+
+		let input = document.createElement('input');
+		input.classList.add('answer');
+		input.classList.add('input');
+
+		if(q_variant) input.value = q_variant;
+
+		let children = answers.children;
+		if(children.length > 0)
+		{
+			changeAns(children[children.length-1])
+		}
+
+		let add = document.createElement('img');
+		add.classList.add('add_ans');
+		add.src = "static/img/blue_plus.png";
+
+		add.addEventListener('click', (e)=>
+			{
+				addAns(e.target.parentNode.parentNode.parentNode);
+			});	
+
+		let goUp = document.createElement('img');
+		goUp.classList.add('goUp');
+		goUp.src = "static/img/goUp.png" ;
+
+		let a = document.createElement('a');
+		a.href = '#'+id;
+		a.appendChild(goUp);
+
+		let close = document.createElement('img');
+		close.classList.add('delete_ans');
+		close.src = 'static/img/close.png';
+
+		close.addEventListener('click', (e)=>
+			{
+				let one = e.target.parentNode;
+				let two = one.parentNode;
+				let three = two.parentNode;
+				let four = three.parentNode;
+				let five = four.parentNode;
+
+				five.removeChild(four);
+
+				let children = five.children;
+				for(let i = 0 ; i< children.length; i++)
+				{
+					let one = children[i].children[0];
+					let a = one.children[0];
+					let n = i+1;
+					a.innerHTML = ' ' + n + '.'; 
+				}
+			});
+
+		div.appendChild(input);
+		div.appendChild(add);
+		div.appendChild(a);
+		div.appendChild(close);
+
+		answers.appendChild(div);
+
+
+		//Работаем с вариантами ответов
+		let variant = document.createElement('div');
+		variant.classList.add('variant');
+		let chb = document.createElement('img');
+		chb.classList.add('checkbox');
+		chb.src = 'static/img/choose.svg';
+
+		let lab = document.createElement('a');
+		let n = variants.children.length +1;
+		lab.innerHTML = n + ')';
+		if(n == q_correct+1)
+		{
+			chb.src = 'static/img/chosen.svg';
+		}
+		variant.appendChild(chb);
+		variant.appendChild(lab);
+
+		variant.addEventListener('click', (e)=>
+		{
+			let mas = chb.src.split('/');
+			if(mas[mas.length-1] == 'chosen.svg')
+			{
+				chb.src = 'static/img/choose.svg';
+			}
+			else
+			{
+				let ch = variants.children;
+				for(let i = 0; i<ch.length; i++)
+				{
+					let im = ch[i].children[0];
+					im.src = 'static/img/choose.svg';
+				}
+
+				chb.src = 'static/img/chosen.svg';
+			}
+		});
+		variants.appendChild(variant);
+	}
+
+// Функция меняет ответ с последнего...
+	function changeAns(ans)
+	{
+		let input = ans.children[0];
+		ans.innerHTML = '';
+		ans.appendChild(input);
+		let img = document.createElement('img');
+		img.src = "static/img/close.png";
+		img.classList.add('delete_ans-ord');
+		img.addEventListener('click', (e)=> { deleteAns(e.target); });
+		ans.appendChild(img);
+	}
+
+// Функция удаляет ответ 
+	function deleteAns(i)
+	{
+		let parent = i.parentNode;
+		let grandparent = parent.parentNode;
+
+		grandparent.removeChild(parent);
+
+		let ans_block = grandparent.parentNode;	
+			
+		let block = ans_block.children[0];
+		let variants = block.children;
+
+		block.removeChild(variants[variants.length-1]);
+
+	}
+
+</script>
+</html>

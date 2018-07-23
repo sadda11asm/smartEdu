@@ -1,0 +1,136 @@
+/***************layout*******************/
+.CourseState
+{
+	margin: 	5vh auto auto 5vh;
+	position: 	relative;
+	height: 	85vh;
+	overflow-y: auto;
+}
+/************sceleton**************/
+.CourseBlock
+{
+	margin: 0 .3vh 2vh .3vh; 
+	float: left;
+	text-align: center;
+	width: 260px;
+	background: transparent;
+	
+	/*border-radius: 15px;*/
+	border: .1vh solid #E0FFFF;
+/*	-webkit-box-shadow: 11px 11px 25px -1px rgba(46,46,46,1);
+	-moz-box-shadow: 11px 11px 25px -1px rgba(46,46,46,1);
+	box-shadow: 11px 11px 25px -1px rgba(46,46,46,1);*/
+}
+
+.CourseHead
+{
+	border-top-left-radius: inherit;
+	border-top-right-radius: inherit;
+	min-height: 40px;
+	background-color: #e6edf4;
+    border-bottom: 1px solid #dadada;
+	padding: 2%;
+}
+.CourseBody
+{
+	background-color: white;
+	text-align: center;
+	height: 250px;
+	border-bottom-left-radius: inherit;
+	border-bottom-right-radius: inherit;
+}
+
+.owerflow
+{
+	overflow-y: auto;
+	height: calc(100% - 40px);
+	padding: 0 5px 0 5px;
+}
+
+.owerflow div
+{
+	margin-top: 10px;
+}
+
+
+/***********scroll***********/
+.owerflow::-webkit-scrollbar{
+width: 0vh;
+}
+
+.owerflow::-webkit-scrollbar-track {
+background-color: transparent;
+}
+
+.owerflow::-webkit-scrollbar-thumb {
+-webkit-border-radius: 1vh;
+-webkit-height: 0vh;
+border-radius: 0vh;
+}
+/************head************/
+.NameCourseCompany
+{
+	font-size:1.6rem;
+	font-weight: bold;
+}
+.EmailCourseCompany
+{
+	font-size:1.2rem;
+	color: black;
+	opacity: 0.7;
+}
+
+/*************body***********/
+.NameCourse
+{
+	font-size: 1.5rem;
+	text-transform: uppercase;
+}
+.CostCourse
+{
+	font-size: 1.2rem;
+	color: rgba(5,120,30,0.8);
+	font-weight: bold;
+}
+.TitleCourse
+{
+	font-size: 1rem;
+	word-wrap: break-word;
+	color: rgba(72,72,72,1);
+}
+.LessonCourse
+{
+	font-size: 1.5rem;
+}
+.TypeCourse
+{
+	font-weight: bold;
+	font-size: 1.5rem;
+}
+
+.UnlimCourse
+{
+	text-transform: lowercase;
+	color: rgba(180, 60, 60, 1);
+}
+.PerehodCourse
+{
+	margin-top: 10px;
+	transition: 0.4s;
+	cursor: pointer;
+	width: 100px;
+	height: 3.5vh;
+    border-radius: 1vh;
+    outline: none;
+    border: none;
+    cursor: pointer;
+    background: lightblue;
+    border: .1vh solid #E0FFFF;
+    color: black;
+    font-size: 80%;
+}
+.PerehodCourse:hover
+{
+	background: skyblue;
+    border: .1vh solid white;
+}

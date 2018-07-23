@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SmartChat</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="static/style/login.css">
+	<link rel="icon" type="img/png" href="static/img/logo.png">
+</head>
+<body>
+	<header class="header">
+		<div class="hamburger"><a href="#">&#9776;</a></div>
+	</header>
+	<div class="wrapper">
+		<div class="login">
+			<h1 class="login_title">Вход</h1>
+			<h3 class = 'err' id = 'err'></h3>
+			<form>
+				<label for="username">Email</label>
+				<input class="login_input" type="text" name="username" id="username">
+				<label for="pass">Пароль</label>
+				<input class="login_input" type="password" name="pass" id="pass">
+				<button class="login_btn" id ='login_btn'>Войти</button>
+			</form>
+			<a class = 'link_to_reg' href="/registration">Хочу зарегистрироваться</a>
+		</div>
+	</div>
+	<script type="text/javascript">
+		document.getElementById('login_btn').addEventListener('click', function(e)
+			{
+				e.preventDefault();
+				console.log('i am here')
+				document.getElementById('err').innerHTML = "";
+				let params = 
+					'method=' 		+ 'LOGIN'+
+					'&&email=' 		+ document.getElementById('username').value+
+					'&&pass=' 		+ document.getElementById('pass').value;
+				 
+				let req = new XMLHttpRequest();
+				req.onreadystatechange = function()
+				{
+					if(req.readyState == 4)
+					{
+						let res = JSON.parse(req.response);
+						if(req.status == 200)
+						{
+							top.location.href = '/';
+						}
+						else
+						{
+							document.getElementById('err').innerHTML = res.message;
+						}
+					}
+				}
+				req.open('POST','/account');
+				req.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+				console.log('sending login')
+				req.send(params);
+			});
+	</script>
+</body>
+</html>

@@ -1,0 +1,397 @@
+/*-----------------------------container--------------------------*/
+    .chat_container
+    {
+    	background: #fff;
+        border-radius: 0.5vh;
+        border: .1vh solid #E0FFFF;
+        position: relative;
+        margin: 5vh 0 0 5vh;
+    	width: 75%;
+    	height: 82%; 
+    	font-size: 3vh;
+        text-align: center;
+        display: inline-block;
+        overflow-y: hidden;
+        overflow-x: hidden;
+    }
+
+/*------------------------------chat------------------------------*/
+    .chat
+    {
+        width: 69%;
+        height: 100%;
+        display: inline-block;
+        float: right;
+        position: relative;
+    }
+
+    .logotip
+    {
+        width: 90%;
+        left: 10%;;
+        top: 10vh;
+    }
+    .msgs
+    {
+        overflow-y: auto;
+        width: inherit;
+        height: 67%;
+        padding: 0vh 10vh 0vh 10vh; 
+        overflow-x: hidden;
+    }
+
+    .box
+    {
+        /*display: none;*/
+        height: 33%;
+    }
+
+    .msg_div
+    {
+        width: 80%;
+        height: 50%;
+        border: 1px solid lightgray;
+        margin-left: 10%;
+    }
+
+    .text
+    {
+        border: 0;
+        width: 96%;
+        height: 50%;
+        padding: 1vh;
+        resize: none;
+        margin-bottom: 0;
+        outline:none;
+    }
+
+    .screpka
+    {
+        height: 3vh;
+        cursor: pointer;
+        float: left;
+    }
+
+    .microfon
+    {
+        height: 3vh;
+        cursor: pointer;
+        float: right;
+    }
+
+    .send
+    {
+        border: none;
+        background: #0088b8;
+        padding: 1vh 5vh;
+        display: block;
+        color: #fff;
+        font-size: 2vh;
+        border-radius: 5vh;
+        float: right;
+        position: absolute;
+        right: 10%;
+        bottom: 6vh;
+        outline: none;
+        cursor: pointer;
+    }
+    .right_message{
+        float: right;
+        background-color: #92a7d0;
+        color: #fff;
+        border-radius: 5vh 5vh 0vh 5vh;
+    }
+    .left_message, .right_message{
+        word-wrap: break-word;
+        max-width: 45vh;
+        display: block;
+        padding: 1.5vh 1.5vh;
+        border: 0.1vw solid #92a7d0;
+        clear: both;
+        font-size: 2vh;
+        text-align: left;
+        margin-top: 2vh;
+    }
+    .left_message{
+        position: relative;
+        float: left;
+        clear: both;
+        color: #0277bd;
+        border-radius: 0vh 5vh 5vh 5vh;
+        margin-left: 1vh;
+        margin-top: 4vh;
+    }
+    .student_name
+    {
+        position: absolute;
+        left: -1vh;
+        top: -3vh;
+        margin: 0;
+        display: block;
+        /*clear: both;*/
+        /*color: #696969;*/
+        color: #92a7d0;
+        font-size: 2.5vh;
+        font-weight: bold;
+    }
+    
+    .chat_picture
+    {
+        width: 30vh;
+        max-height: 40vh;
+        border-radius: 1vh;
+        cursor: pointer;
+    }
+    .play_btn
+    {
+        height: 4vh;
+        cursor: pointer;
+        display: inline-grid;
+    }
+    .chat_audio
+    {
+        display: none;
+    }
+    .audio_line
+    {
+        display: inline-grid;
+        height: 1vh;
+        background: #b7b4b4;
+        width: 30vh;
+        position: relative;
+    }
+    .audio_progress
+    {
+        background: black;
+        width: 1vh;
+        height: 2vh;
+        position: absolute;
+        top: -.5vh;
+        cursor: pointer;
+    }
+   .file_href
+    {
+        background: #b7b4b43b;
+        padding: 1vh;
+        vertical-align: center;
+        border-radius: 1vh;
+        text-decoration: none;
+        font-size: 4vh;
+        color: black;
+        position: relative;
+    }
+    .download_file
+    {
+        width: 4vh;
+        position: absolute;
+    }
+    .filename
+    {
+        margin-left: 5vh;
+    }
+
+    .files
+    {
+        margin-top: .5vh;
+        margin-left: 10%;
+        width: 50%;
+        height: 12vh;
+        overflow-y: auto;
+    }
+
+    .file_block
+    {
+        overflow-x: hidden;
+        border: 1px solid lightgray;
+        width: inherit;
+        height: 5vh;
+        margin-bottom: 1vh;
+        position: relative;
+    }
+
+    .file_img
+    {
+        height: 5vh;
+        top: -.3vh;
+        left: 0;
+        position: absolute;
+    }
+
+    .fname
+    {
+        text-align: left;
+        width: 32vh;
+        display: inline-block;
+        left: 5vh;
+        top: .3vh;
+        position: absolute;
+        overflow: hidden;
+    }
+
+    .rem_img
+    {
+        height: 4vh;
+        right: 1.5vh;
+        top: .3vh;
+        position: absolute;
+        cursor: pointer;
+        border-left: 1px solid lightgray;
+    }
+
+    .chat_video
+    {
+        width: 40vh;
+        max-height: 40vh;
+        border-radius: 1vh;
+    }
+
+    .fileTitle
+    {
+        margin: .5vh 0 .5vh 1vh;
+        font-size: 2.4vh;
+    }
+
+/*---------------------------contactlist-----------------------------------*/
+    .contacts
+    {
+	    overflow-y: auto;
+        width: 30%;
+        display: inline-block;
+        float: left;
+        height: 100%;
+        border-right: .5vh solid #e0e0e0;
+    }
+
+    .contact
+    {
+        margin: 0;
+        width: 100%;
+        height: 8vh;
+        cursor: pointer;
+    }
+
+    .current_contact
+    {
+        background: rgba(146, 167, 208, 0.25);
+    }
+
+    .contact:hover
+    {
+        background: rgba(146, 167, 208, 0.25);
+    }
+
+    .photo_div
+    {
+        width: 20%;
+        height: 8vh;
+        display: flex;
+        border-bottom: .5vh solid #e0e0e0;
+        float: left;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .photo
+    {
+        background: #eee;
+        border: 1px solid #0088b8;
+        border-radius: 100%;
+        max-width: 6vh;
+        max-height: 6vh;
+    }
+
+    .info_div
+    {
+        position: relative;
+        display: flex;
+        width: 80%;
+        height: 8vh;
+        border-bottom: .5vh solid #e0e0e0;
+        align-items: center;
+        justify-content: left;
+    }
+
+    .name
+    {
+        position: absolute;
+        top: .5vh;
+        font-size: 2.2vh;
+        
+    }
+
+    .type
+    {
+        position: absolute;
+        top: 4vh;
+        height: 2vh;
+        user-select: none;
+    }
+
+    .type p
+    {
+        margin: 0;
+        display: inline;
+        font-size: 1.5vh;
+        color: #ccc;
+    }
+
+    .type strong
+    {
+        margin: 0;
+        display: inline;
+        font-size: 1.8vh;
+        color: #91a7cf;
+    }
+
+    .missCount
+    {
+        min-width: 3.5vh;
+        user-select: none;
+        position: absolute;
+        right: 1vh;
+        bottom: 1.5vh;
+        background: rgb(146, 167, 208);
+        padding: .6vh;
+        border-radius: 100%;
+        margin: 0;
+    }
+/*--------------------------POPuP WITH PICT-----------------------------------*/
+    .popImg
+    {
+        display: none;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 20;
+        top: 0vh;
+        left: 0;
+        position: fixed;
+        background: rgba(0,0,0,0.4); 
+    }
+    .underPOP
+    {
+        width: 120vh;
+        background: rgba(0,0,0,0.5);
+        margin-left: 50vh;
+        margin-top: 10vh;
+        position: relative;
+        padding: 5vh;
+    }
+    .picture
+    {
+        display: block;
+        margin: auto auto;
+        max-width: 85vh;
+        max-height: 75vh;
+        min-height: 50vh;
+        min-width: 50vh;
+    }
+
+    .wclose
+    {
+        width: 4vh;
+        position: absolute;
+        right: 1vh;
+        top: 1vh;
+        cursor: pointer;
+    }

@@ -1,0 +1,257 @@
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+.container
+{
+    background: #fff;
+    border-radius: 0.5vh;
+    border: .1vh solid #E0FFFF;
+    text-align: center;
+    position: absolute;
+    display: inline-block;
+    top: 0;
+    bottom: 0;
+    margin: 12vh 0 0 10vh;
+	width: 125vh;
+	height: 82vh; 
+	font-size: 3vh;
+}
+
+.input
+{
+    height: 6.4vh;
+    width: 45vh;
+    border-radius: .5vh;
+    border: .2vh solid #aabce3;
+    background: transparent;
+    font-size: 3vh;
+    padding-left: 1vh;
+}
+
+/*-----------------create top------------*/
+    .top
+    {
+        width: 100%;
+        height: 10vh;
+        border-bottom: .2vh solid #aabce3;
+        background: #e6edf4;
+        position: relative;
+    }
+
+    .lvl
+    {
+        width: 26vh;
+        height: 6.5vh;
+        border-radius: .9vh;
+        margin: 2.3vh 0 0 18vh;
+        position: absolute;
+        border: .2vh solid #aabce3;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .lvl h4
+    {
+        font-size: 2vh;
+        font-weight: normal;
+        margin: 2vh 2vh 0 2vh;
+        display: inline;
+        position: absolute;
+        user-select: none;
+    }
+
+    .lvl img 
+    {
+        position: absolute;
+        display: inline;
+        margin: 1.5vh 1vh 1vh 22vh;
+        width: 1.7vh;
+        transform: rotate(90deg); 
+    }
+
+    .lvls
+    {
+        z-index: 3;
+        text-align: left;
+        width: 22vh;
+        padding: 1vh;
+        background: white;
+        position: absolute;
+        border-radius: .5vh;
+        margin: 9vh 0 0 21.5vh;
+        box-shadow: 0 0 .5vh rgba(0,0,0,0.5);
+    }
+
+    .lvl_name
+    {
+        font-size: 2.2vh;
+        cursor: pointer;
+        border-radius: .3vh;
+        padding: 1vh;
+    }
+
+    .lvl_name:hover
+    {
+        background: #e6edf4;
+    }
+
+    .test_name
+    {
+        position: absolute;
+        margin: 2.3vh 0 0 -12vh;
+    }
+
+    .blue_plus
+    {
+        position: absolute;
+        width: 6vh;
+        right: 20vh;
+        top: 2.4vh;
+        cursor: pointer;
+    }
+
+    .complete_btn
+    {
+        position: absolute;
+        width: 5.2vh;
+        right: 14vh;
+        top: 2.9vh;
+        cursor: pointer;
+    }
+
+    .close_btn
+    {
+        position: absolute;
+        width: 5.3vh;
+        right: 8vh;
+        top: 2.9vh;
+        cursor: pointer; 
+    }
+/*-------------------test------------------*/
+.questions
+{
+    width: 100%;
+    height: 72vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.test_block
+{
+    width: 100%;
+    position: relative;
+    height: wrap;
+    border-bottom: .3vh solid gray;
+    min-height: 20vh;
+}
+.left_block
+{
+    margin: 0;
+    width: 40%;
+    height: 20vh;
+    float: left;
+}
+
+.quest_name
+{
+    margin: 2.3vh 0 0 0;
+    float: right;
+}
+
+.quest_weight
+{
+    margin: 2vh 0 0 0;
+    float: right;
+}
+
+.numer
+{
+    position: absolute;
+    top: 4vh;
+    left: 2vh;
+
+}
+
+.answers_block
+{
+    margin: 0;
+    display: inline-block;
+    width: 60%;
+}
+
+.variants
+{
+    margin-top: 2vh;
+    width: 8vh;
+    float: left;
+    /*background: yellow;*/
+    padding-top: 1vh;
+    user-select: none;
+}
+
+.variant
+{
+    height: 7.6vh;
+    margin-top: 1vh;
+    margin-bottom: 1vh;
+    cursor: pointer;
+}
+
+.answers
+{
+    width: 90%;
+    margin-left: 8vh;
+    padding-bottom: 2vh;
+}
+
+.ans
+{
+    display: block;
+    margin-top: 2.3vh;
+    width: 100%;
+    text-align: left;
+    position: relative;
+}
+
+.delete_ans-ord
+{
+    position: absolute;
+    width: 5.3vh;
+    cursor: pointer; 
+    top: .5vh;
+    right: 15vh
+}
+
+.add_ans
+{
+    position: absolute;
+    width: 5.3vh;
+    cursor: pointer; 
+    top: .5vh;
+    right: 15vh;
+}
+
+.goUp
+{
+    position: absolute;
+    width: 5vh;
+    cursor: pointer; 
+    top: .5vh;
+    right: 9vh;
+}
+
+.delete_ans
+{
+    position: absolute;
+    width: 5.3vh;
+    cursor: pointer; 
+    top: .5vh;   
+    right: 3vh;
+}
+
+.checkbox
+{
+    width: 2.4vh;
+}

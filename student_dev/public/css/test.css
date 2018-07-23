@@ -1,0 +1,57 @@
+.testBlock
+{
+	margin: 5vh 0 0 5vh;
+	width: 80%;
+	height: 80vh;
+	position: relative;
+}
+
+.testTitle
+{
+	width: 100%;
+	background: #e6edf4;
+	height: 7vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid #dadada;
+	border-bottom: 0;
+}
+
+.testBody
+{
+	width: 100%;
+	height: 72vh;
+	border: 1px solid #dadada;
+	border-top: 0;
+	background: white;
+	overflow-y: auto;
+}
+
+.test_question
+{
+	width: calc(100% - 4vh);
+	border-bottom: 1px solid #dadada;
+	position: relative;
+	padding: 2vh;
+}
+
+.test_control
+{
+	width: calc(100% - 4vh);
+	height: 4vh;
+	position: relative;
+	padding-right: 2vh;
+	padding-top: 1vh;
+	float: right; 
+}
+
+.test_button
+{
+	width: 15%;
+	height: 4vh;
+	border-radius: .5vh;
+	float: right;
+	cursor: pointer;
+	margin-left: 1vh;
+}
